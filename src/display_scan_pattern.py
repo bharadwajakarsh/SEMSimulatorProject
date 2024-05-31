@@ -19,6 +19,7 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, maxDwellTime, minDwe
     ycoords = sortedPixelCoords % imgSize
 
     plt.figure(figsize=(20, 20))
+    plt.title("Path for scanning first 1000 pixels")
     plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
     plt.plot(xcoords[:1000], ycoords[:1000], color='white', linewidth=1)
     plt.show()

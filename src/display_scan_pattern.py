@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.generate_new_images import generate_new_images
-from src.intialize_database import refresh_database
 from src.sparse_image_gen import generate_sparse_image
 
 

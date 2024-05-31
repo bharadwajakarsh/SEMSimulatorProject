@@ -30,10 +30,10 @@ def detect_sharp_edges_indices(imageShape, relativeGradientsImage, sparsityPerce
     return sharpEdgesIndices
 
 
-def detect_high_interest_areas(relativeGradientImage, sharpEdgeIndices):
-    if any(x < 0 or x > relativeGradientImage.size for x in sharpEdgeIndices):
+def detect_high_interest_areas(relativeGradientsImage, sharpEdgeIndices):
+    if any(x < 0 or x > relativeGradientsImage.size for x in sharpEdgeIndices):
         raise ValueError("Index value out of range")
-    return np.ravel(relativeGradientImage)[sharpEdgeIndices]
+    return np.ravel(relativeGradientsImage)[sharpEdgeIndices]
 
 
 def calculate_pixelwise_dtime(pixelInterests, maxDwellTime, minDwellTime):

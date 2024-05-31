@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 from src.intialize_database import SEMImage
-from src.sparse_image_gen import (compute_relative_gradient_magnitude, detect_sharp_edges_indices,
+from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edges_indices,
                                   detect_high_interest_areas)
 
 
@@ -23,8 +23,8 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
     stitchedImage = np.copy(lowDTImageObject.extractedImage)
     highDTImage = np.copy(highDTImageObject.extractedImage)
 
-    gradientsLowDTImage = compute_relative_gradient_magnitude(stitchedImage)
-    impPixelCoords = detect_sharp_edges_indices(stitchedImage, gradientsLowDTImage, sparsityPercent)
+    gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
+    impPixelCoords = detect_sharp_edges_indices(stitchedImage.shape, gradientsLowDTImage, sparsityPercent)
 
     stitchedImage = np.ravel(stitchedImage)
     highDTImage = np.ravel(highDTImage)
@@ -38,8 +38,8 @@ def stitch_with_gaussian_blur(lowDTImageObject, highDTImageObject, sparsityPerce
     stitchedImage = np.copy(lowDTImageObject.extractedImage)
     highDTImage = np.copy(highDTImageObject.extractedImage)
 
-    gradientsLowDTImage = compute_relative_gradient_magnitude(stitchedImage)
-    impPixelCoords = detect_sharp_edges_indices(stitchedImage, gradientsLowDTImage, sparsityPercent)
+    gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
+    impPixelCoords = detect_sharp_edges_indices(stitchedImage.shape, gradientsLowDTImage, sparsityPercent)
 
     kernelOneD = cv2.getGaussianKernel(kernelSize[0], 0)
     kernelTwoD = np.outer(kernelOneD, kernelOneD.T)

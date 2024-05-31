@@ -15,6 +15,8 @@ class SEMImage:
 def refresh_database(folderPath):
     imageSet = []
     csvFiles = glob.glob(os.path.join(folderPath, '*.csv'))
+    if not csvFiles:
+        raise TypeError("No csv file found in folder")
     for path in csvFiles:
         try:
             imageDataFrame = pd.read_csv(path, delimiter=';', dtype=str)

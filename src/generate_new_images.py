@@ -26,7 +26,7 @@ def find_average_image(randomImageSubset):
 
         totalImageCount = totalImageCount + 1
 
-    return SEMImage(dwellTimeSum/totalImageCount, imageSizeDef,imageSum/totalImageCount)
+    return SEMImage(dwellTimeSum / totalImageCount, imageSizeDef, imageSum / totalImageCount)
 
 
 def generate_new_images(imageSet, subsetSize, numberImages):

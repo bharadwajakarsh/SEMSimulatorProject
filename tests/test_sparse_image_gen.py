@@ -2,19 +2,19 @@ import unittest
 
 import numpy as np
 
-from src.sparse_image_gen import (compute_sample_size, compute_relative_gradient_magnitude,
+from src.sparse_image_gen import (compute_sample_size, compute_image_of_relative_gradients,
                                   detect_sharp_edges_indices, detect_high_interest_areas, calculate_pixelwise_dtime)
 
 
 class TestSparseImageGen(unittest.TestCase):
     def test_sample_size(self):
-        image = np.zeros((10, 5), dtype=float)
-        n_samples = compute_sample_size(image, 50)
+        imageShape = (10, 5)
+        n_samples = compute_sample_size(imageShape, 50)
         self.assertEqual(n_samples, 25)
 
     def test_compute_zero_gradients(self):
         image = np.ones((10, 5), dtype=float)
-        gradients = compute_relative_gradient_magnitude(image)
+        gradients = compute_image_of_relative_gradients(image)
         self.assertEqual(0, np.linalg.norm(gradients - np.zeros(image.shape)))
 
     def test_compute_nonzero_gradients(self):
@@ -22,7 +22,7 @@ class TestSparseImageGen(unittest.TestCase):
         image[0, 0] = 1.0
         image[2, 2] = 1.0
         image[2, 3] = 1.0
-        gradients = compute_relative_gradient_magnitude(image)
+        gradients = compute_image_of_relative_gradients(image)
         expectedGradient = np.asarray(
             [[1, np.sqrt(2) / 4, 0, 0, 0], [np.sqrt(2) / 4, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0],
              [0, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, 1 / np.sqrt(2)],
@@ -40,7 +40,7 @@ class TestSparseImageGen(unittest.TestCase):
             [[1, np.sqrt(2) / 4, 0, 0, 0], [np.sqrt(2) / 4, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0],
              [0, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, 1 / np.sqrt(2)],
              [0, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0], [0, 0, 0, 0, 0]])
-        sharpIndices = detect_sharp_edges_indices(image, gradients, sparsityPercent)
+        sharpIndices = detect_sharp_edges_indices(image.shape, gradients, sparsityPercent)
         self.assertEqual(sharpIndices.all(), expectedSharpIndices.all())
 
     def test_detect_high_interest_areas(self):

@@ -26,13 +26,13 @@ def find_average_image(randomImageSubset):
 
         totalImageCount = totalImageCount + 1
 
-    return SEMImage(dwellTimeSum / totalImageCount, imageSizeDef, imageSum / totalImageCount)
+    return SEMImage(dwellTimeSum/totalImageCount, imageSizeDef, imageSum/totalImageCount)
 
 
 def generate_new_images(imageSet, subsetSize, numberImages):
     imageSet = [eachImage for eachImage in imageSet if isinstance(eachImage, SEMImage)]
 
-    if len(imageSet) == 0:
+    if not imageSet:
         raise ValueError("Empty set")
     if subsetSize > len(imageSet):
         raise ValueError("Subset size must be smaller than the image set")

@@ -20,16 +20,16 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
     if lowDTImageObject.dwellTime > highDTImageObject.dwellTime:
         raise ValueError("First image should be of lower dwell-time")
 
-    stitchedImage = np.copy(lowDTImageObject.extractedImage)
-    highDTImage = np.copy(highDTImageObject.extractedImage)
+    stitchedImage = lowDTImageObject.extractedImage
+    highDTImage = highDTImageObject.extractedImage
 
     gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
     impPixelCoords = detect_sharp_edges_indices(stitchedImage.shape, gradientsLowDTImage, sparsityPercent)
 
-    stitchedImage = np.ravel(stitchedImage)
-    highDTImage = np.ravel(highDTImage)
+    stitchedImageFlat = np.ravel(stitchedImage)
+    highDTImageFlat = np.ravel(highDTImage)
 
-    stitchedImage[impPixelCoords] = highDTImage[impPixelCoords]
+    stitchedImageFlat[impPixelCoords] = highDTImageFlat[impPixelCoords]
 
     return np.reshape(stitchedImage, lowDTImageObject.extractedImage.shape)
 

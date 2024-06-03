@@ -18,10 +18,11 @@ def compute_image_of_relative_gradients(image):
     gradients_y = np.gradient(image, axis=0)
     relativeGradientsImage = np.sqrt(gradients_x ** 2 + gradients_y ** 2)
     maxGradient = np.max(relativeGradientsImage)
+
     if maxGradient != 0.0:
         return relativeGradientsImage/maxGradient
-    else:
-        return relativeGradientsImage
+
+    return relativeGradientsImage
 
 
 def detect_sharp_edges_indices(imageShape, relativeGradientsImage, sparsityPercent):

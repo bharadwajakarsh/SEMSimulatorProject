@@ -26,9 +26,11 @@ def compute_image_of_relative_gradients(image):
 
 
 def detect_sharp_edges_indices(imageShape, relativeGradientsImage, sparsityPercent):
+    relativeGradientsFlat = np.ravel(relativeGradientsImage)
     sampleSize = compute_sample_size(imageShape, sparsityPercent)
-    threshold = np.partition(np.ravel(relativeGradientsImage), -sampleSize)[-sampleSize]
-    sharpEdgesIndices = np.where(np.ravel(relativeGradientsImage) >= threshold)[0][:sampleSize]
+
+    threshold = np.partition(relativeGradientsFlat, -sampleSize)[-sampleSize]
+    sharpEdgesIndices = np.where(relativeGradientsFlat >= threshold)[0][:sampleSize]
     return sharpEdgesIndices
 
 

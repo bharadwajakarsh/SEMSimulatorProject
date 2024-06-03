@@ -43,7 +43,7 @@ def detect_high_interest_areas(relativeGradientsImage, sharpEdgeIndices):
 def calculate_pixelwise_dtime(pixelInterests, maxDwellTime, minDwellTime):
     if max(pixelInterests) == 0:
         raise RuntimeError("Useless Image. No edges present")
-    if maxDwellTime == minDwellTime:
+    if maxDwellTime <= minDwellTime:
         raise ValueError("Invalid range for dwell-time")
     return minDwellTime + pixelInterests * (maxDwellTime - minDwellTime)
 

@@ -8,8 +8,6 @@ class SparseImage:
 
 
 def compute_sample_size(imageShape, sparsityPercent):
-    if sparsityPercent < 0 or sparsityPercent > 100:
-        raise ValueError("illegal sparsity percentage")
     return int(imageShape[0]*imageShape[1] * sparsityPercent / 100)
 
 
@@ -41,10 +39,6 @@ def detect_high_interest_areas(relativeGradientsImage, sharpEdgeIndices):
 
 
 def calculate_pixelwise_dtime(pixelInterests, maxDwellTime, minDwellTime):
-    if max(pixelInterests) == 0:
-        raise RuntimeError("Useless Image. No edges present")
-    if maxDwellTime <= minDwellTime:
-        raise ValueError("Invalid range for dwell-time")
     return minDwellTime + pixelInterests * (maxDwellTime - minDwellTime)
 
 
@@ -52,12 +46,23 @@ def extract_sparse_features(extractedImage, sparsityPercent, maxDwellTime, minDw
     relativeGradientsImage = compute_image_of_relative_gradients(extractedImage)
     sharpEdgesIndices = detect_sharp_edges_indices(extractedImage.shape, relativeGradientsImage, sparsityPercent)
     pixelInterests = detect_high_interest_areas(relativeGradientsImage, sharpEdgesIndices)
+
+    if max(pixelInterests) == 0:
+        raise RuntimeError("Useless Image. No edges present")
+
     estDwellTime = calculate_pixelwise_dtime(pixelInterests, maxDwellTime, minDwellTime)
+
     return np.array([sharpEdgesIndices, pixelInterests, estDwellTime])
 
 
-def generate_sparse_image(imageObject, samplePercent, maxDwellTime, minDwellTime):
+def generate_sparse_image(imageObject, sparsityPercent, maxDwellTime, minDwellTime):
+    if sparsityPercent < 0 or sparsityPercent > 100:
+        raise ValueError("illegal sparsity percentage")
+    if maxDwellTime <= minDwellTime:
+        raise ValueError("Invalid range for dwell-time")
+
     imageSizeDef = imageObject.imageSize
     ourImage = imageObject.extractedImage
-    sparseFeatures = extract_sparse_features(ourImage, samplePercent, maxDwellTime, minDwellTime)
+    sparseFeatures = extract_sparse_features(ourImage, sparsityPercent, maxDwellTime, minDwellTime)
+
     return SparseImage(sparseFeatures, imageSizeDef)

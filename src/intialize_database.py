@@ -57,4 +57,5 @@ for image in newImageSet[:2]:
     plt.show()
     print('Dwell time(us): ', image.dwellTime)
     print('Image size: ', image.imageSize)
+    
 """

@@ -2,11 +2,8 @@ matplotlib
 numpy
 packaging
 pandas
-Pillow
 pip
 pyparsing
 python-dateutil
-setuptools
 six
 tifffile
-opencv-python

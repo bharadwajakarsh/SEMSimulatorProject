@@ -36,19 +36,19 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
 
 def stitch_with_gaussian_blur(lowDTImageObject, highDTImageObject, sparsityPercent, kernelSize):
     stitchedImage = np.copy(lowDTImageObject.extractedImage)
-    highDTImage = np.copy(highDTImageObject.extractedImage)
+    highDTImage = highDTImageObject.extractedImage
 
     gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
     impPixelCoords = detect_sharp_edges_indices(gradientsLowDTImage, sparsityPercent)
 
     kernelOneD = cv2.getGaussianKernel(kernelSize[0], 0)
     kernelTwoD = np.outer(kernelOneD, kernelOneD.T)
+    kernelTwoDFlat = np.ravel(kernelTwoD)
 
     maskToSee = np.zeros(stitchedImage.size)
     maskToSee[impPixelCoords] = detect_high_interest_areas(gradientsLowDTImage, impPixelCoords)
-    maskToSee = np.reshape(maskToSee, lowDTImageObject.extractedImage.shape)
 
-    blurdMask = np.convolve(np.ravel(maskToSee), np.ravel(kernelTwoD), mode='same').reshape(maskToSee.shape)
+    blurdMask = np.convolve(maskToSee, kernelTwoDFlat, mode='same').reshape(stitchedImage.shape)
 
     for i in range(len(blurdMask)):
         for j in range(len(blurdMask)):

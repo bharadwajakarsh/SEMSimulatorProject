@@ -4,16 +4,17 @@ from src.intialize_database import SEMImage
 
 
 def find_average_image(randomImageSubset):
+    if not randomImageSubset:
+        raise ValueError("Empty set")
+
     imageSizeDef = randomImageSubset[0].imageSize
-    imageSum = np.zeros((imageSizeDef, imageSizeDef))
+
+    if len({eachImage.imageSize for eachImage in randomImageSubset}) > 1:
+        raise ValueError("Image size not consistent")
 
     totalImageCount = 0
     dwellTimeSum = 0
-
-    if len(randomImageSubset) == 0:
-        raise ValueError("Empty set")
-    if len({eachImage.imageSize for eachImage in randomImageSubset}) > 1:
-        raise ValueError("Image size not consistent")
+    imageSum = np.zeros((imageSizeDef, imageSizeDef))
 
     for image in randomImageSubset:
 
@@ -26,7 +27,7 @@ def find_average_image(randomImageSubset):
 
         totalImageCount = totalImageCount + 1
 
-    return SEMImage(dwellTimeSum/totalImageCount, imageSizeDef, imageSum/totalImageCount)
+    return SEMImage(dwellTimeSum / totalImageCount, imageSizeDef, imageSum / totalImageCount)
 
 
 def generate_new_images(imageSet, subsetSize, numberImages):

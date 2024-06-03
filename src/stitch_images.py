@@ -24,7 +24,7 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
     highDTImage = highDTImageObject.extractedImage
 
     gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
-    impPixelCoords = detect_sharp_edges_indices(stitchedImage.shape, gradientsLowDTImage, sparsityPercent)
+    impPixelCoords = detect_sharp_edges_indices(gradientsLowDTImage, sparsityPercent)
 
     stitchedImageFlat = np.ravel(stitchedImage)
     highDTImageFlat = np.ravel(highDTImage)
@@ -39,7 +39,7 @@ def stitch_with_gaussian_blur(lowDTImageObject, highDTImageObject, sparsityPerce
     highDTImage = np.copy(highDTImageObject.extractedImage)
 
     gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
-    impPixelCoords = detect_sharp_edges_indices(stitchedImage.shape, gradientsLowDTImage, sparsityPercent)
+    impPixelCoords = detect_sharp_edges_indices(gradientsLowDTImage, sparsityPercent)
 
     kernelOneD = cv2.getGaussianKernel(kernelSize[0], 0)
     kernelTwoD = np.outer(kernelOneD, kernelOneD.T)

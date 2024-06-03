@@ -23,9 +23,9 @@ def compute_image_of_relative_gradients(image):
     return relativeGradientsImage
 
 
-def detect_sharp_edges_indices(imageShape, relativeGradientsImage, sparsityPercent):
+def detect_sharp_edges_indices(relativeGradientsImage, sparsityPercent):
+    sampleSize = compute_sample_size(relativeGradientsImage.shape, sparsityPercent)
     relativeGradientsFlat = np.ravel(relativeGradientsImage)
-    sampleSize = compute_sample_size(imageShape, sparsityPercent)
 
     threshold = np.partition(relativeGradientsFlat, -sampleSize)[-sampleSize]
     sharpEdgesIndices = np.where(relativeGradientsFlat >= threshold)[0][:sampleSize]
@@ -44,7 +44,7 @@ def calculate_pixelwise_dtime(pixelInterests, maxDwellTime, minDwellTime):
 
 def extract_sparse_features(extractedImage, sparsityPercent, maxDwellTime, minDwellTime):
     relativeGradientsImage = compute_image_of_relative_gradients(extractedImage)
-    sharpEdgesIndices = detect_sharp_edges_indices(extractedImage.shape, relativeGradientsImage, sparsityPercent)
+    sharpEdgesIndices = detect_sharp_edges_indices(relativeGradientsImage, sparsityPercent)
     pixelInterests = detect_high_interest_areas(relativeGradientsImage, sharpEdgesIndices)
 
     if max(pixelInterests) == 0:

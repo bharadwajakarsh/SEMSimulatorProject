@@ -40,7 +40,7 @@ class TestSparseImageGen(unittest.TestCase):
             [[1, np.sqrt(2) / 4, 0, 0, 0], [np.sqrt(2) / 4, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0],
              [0, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, 1 / np.sqrt(2)],
              [0, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0], [0, 0, 0, 0, 0]])
-        sharpIndices = detect_sharp_edges_indices(image.shape, gradients, sparsityPercent)
+        sharpIndices = detect_sharp_edges_indices(gradients, sparsityPercent)
         self.assertEqual(sharpIndices.all(), expectedSharpIndices.all())
 
     def test_detect_high_interest_areas(self):

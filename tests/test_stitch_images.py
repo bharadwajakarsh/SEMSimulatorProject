@@ -34,7 +34,7 @@ class TestStitchImages(unittest.TestCase):
 
         expectedStitchedImage = np.array(
             [[0, 20, 0, 0, 0], [0, 0, 10, 0, 0], [0, 0, 1, 1, 1], [1, 5, 0, 1, 1], [1, 1, 1, 1, 1]]).astype(float)
-        stitchedImageForTest = stitch_with_gaussian_blur(exampleLDTImage, exampleHDTImage, 15, (3, 3))
+        stitchedImageForTest = stitch_with_gaussian_blur(exampleLDTImage, exampleHDTImage, 15, 3)
 
         self.assertEqual(expectedStitchedImage.all(), stitchedImageForTest.all())
 

@@ -1,5 +1,4 @@
 import numpy as np
-import cv2
 
 from src.intialize_database import SEMImage
 from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edges_indices,
@@ -10,6 +9,11 @@ def calculate_psnr(originalImage, hybridImage):
     if np.linalg.norm(originalImage - hybridImage) == 0:
         return float('inf')
     return -10 * np.log10(np.mean((originalImage - hybridImage) ** 2))
+
+
+def get_numpy_gaussian_kernel(kernelSize, sigma):
+    kernel = np.exp(-(np.arange(kernelSize) - kernelSize // 2) ** 2 / (2 * sigma ** 2))
+    return kernel / np.sum(kernel)
 
 
 def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
@@ -41,7 +45,7 @@ def stitch_with_gaussian_blur(lowDTImageObject, highDTImageObject, sparsityPerce
     gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
     impPixelCoords = detect_sharp_edges_indices(gradientsLowDTImage, sparsityPercent)
 
-    kernelOneD = cv2.getGaussianKernel(kernelSize[0], 0)
+    kernelOneD = get_numpy_gaussian_kernel(kernelSize, 0.1)
     kernelTwoD = np.outer(kernelOneD, kernelOneD.T)
     kernelTwoDFlat = np.ravel(kernelTwoD)
 

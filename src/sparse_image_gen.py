@@ -17,8 +17,9 @@ def compute_image_of_relative_gradients(image):
     gradients_x = np.gradient(image, axis=1)
     gradients_y = np.gradient(image, axis=0)
     relativeGradientsImage = np.sqrt(gradients_x ** 2 + gradients_y ** 2)
-    if np.max(relativeGradientsImage) != 0.0:
-        return relativeGradientsImage / np.max(relativeGradientsImage)
+    maxGradient = np.max(relativeGradientsImage)
+    if maxGradient != 0.0:
+        return relativeGradientsImage/maxGradient
     else:
         return relativeGradientsImage
 

@@ -35,7 +35,7 @@ def detect_sharp_edges_indices(imageShape, relativeGradientsImage, sparsityPerce
 
 
 def detect_high_interest_areas(relativeGradientsImage, sharpEdgeIndices):
-    if any(x < 0 or x > relativeGradientsImage.size for x in sharpEdgeIndices):
+    if any(x < 0 or x >= relativeGradientsImage.size for x in sharpEdgeIndices):
         raise ValueError("Index value out of range")
     return np.ravel(relativeGradientsImage)[sharpEdgeIndices]
 

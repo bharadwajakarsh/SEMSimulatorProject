@@ -46,6 +46,7 @@ def refresh_database(folderPath):
 
 """
 Execution
+import matplotlib.pyplot as plt
 
 path = "C:/Users/akbh02/JupyterNotebooks"
 newImageSet = refresh_database(path)

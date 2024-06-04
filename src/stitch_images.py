@@ -39,6 +39,15 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
 
 
 def stitch_with_gaussian_blur(lowDTImageObject, highDTImageObject, sparsityPercent, kernelSize):
+    if not isinstance(lowDTImageObject, SEMImage):
+        raise ValueError("Image is not of type SEM Object")
+    if not isinstance(highDTImageObject, SEMImage):
+        raise ValueError("Image is not of type SEM Object")
+    if lowDTImageObject.dwellTime > highDTImageObject.dwellTime:
+        raise ValueError("First image should be of lower dwell-time")
+    if sparsityPercent < 0 or sparsityPercent > 100:
+        raise ValueError("illegal sparsity percentage")
+
     stitchedImage = np.copy(lowDTImageObject.extractedImage)
     highDTImage = highDTImageObject.extractedImage
 

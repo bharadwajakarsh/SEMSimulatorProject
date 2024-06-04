@@ -66,6 +66,7 @@ def display_mask(sparseImageObject: SparseImage, originalImageObject: SEMImage):
     plt.imshow(1 - imageToSee, cmap='grey')
     plt.show()
 
+
 """
 Execution
 

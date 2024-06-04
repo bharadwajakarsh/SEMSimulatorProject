@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from src.intialize_database import SEMImage
+from src.initialize_database import SEMImage
 from src.stitch_images import stitch_images, stitch_with_gaussian_blur, calculate_psnr
 
 

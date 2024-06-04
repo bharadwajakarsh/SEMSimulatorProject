@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 from src.sparse_image_gen import generate_sparse_image
 from src.sparse_image_gen import SparseImage
-from src.intialize_database import SEMImage
+from src.initialize_database import SEMImage
 
 
 def display_scan_pattern(lowDTimageObject, sparsityPercent, maxDwellTime, minDwellTime):
@@ -34,7 +34,7 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, maxDwellTime, minDwe
     plt.show()
 
 
-def dwell_times_histogram(dwellTimesFeature, bins: int):
+def plot_dwell_times_histogram(dwellTimesFeature, bins: int):
     if len(dwellTimesFeature) == 0:
         raise ValueError("Empty dwell-times feature vector")
     if not isinstance(bins, int):
@@ -66,13 +66,18 @@ def display_mask(sparseImageObject: SparseImage, originalImageObject: SEMImage):
     plt.imshow(1 - imageToSee, cmap='grey')
     plt.show()
 
-
 """
 Execution
+
+from src.initialize_database import refresh_database
+from src.generate_new_images import generate_new_images
 
 path = "C:/Users/akbh02/JupyterNotebooks"
 availableImages = refresh_database(path)
 testImage = generate_new_images(availableImages, 10, 10)[5]
 display_scan_pattern(testImage, 15, 300, 10)
+sparseImageObject = generate_sparse_image(testImage, 15, 300, 10)
+display_mask(sparseImageObject, testImage)
+plot_dwell_times_histogram(sparseImageObject.sparseFeatures[2, :], 100)
 
 """

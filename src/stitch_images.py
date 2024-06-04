@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.intialize_database import SEMImage
+from src.initialize_database import SEMImage
 from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edges_indices,
                                   detect_high_interest_areas)
 

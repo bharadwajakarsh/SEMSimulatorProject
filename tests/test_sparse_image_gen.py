@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from src.sparse_image_gen import (compute_sample_size, compute_image_of_relative_gradients,
-                                  detect_sharp_edges_indices, detect_high_interest_areas, calculate_pixelwise_dtime)
+                                  detect_sharp_edges_indices, calculate_pixel_interests, calculate_pixelwise_dtime)
 
 
 class TestSparseImageGen(unittest.TestCase):
@@ -49,7 +49,7 @@ class TestSparseImageGen(unittest.TestCase):
              [0, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, 1 / np.sqrt(2)],
              [0, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0], [0, 0, 0, 0, 0]])
         sharpEdgeIndices = np.asarray([0, 1, 5, 7, 8])
-        highInterestAreas = detect_high_interest_areas(imageGradients, sharpEdgeIndices)
+        highInterestAreas = calculate_pixel_interests(imageGradients, sharpEdgeIndices)
         expectedHighAreas = np.asarray([1, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4])
         self.assertEqual(highInterestAreas.all(), expectedHighAreas.all())
 

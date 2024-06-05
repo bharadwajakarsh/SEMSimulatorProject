@@ -2,7 +2,7 @@ import numpy as np
 
 from src.initialize_database import SEMImage
 from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edges_indices,
-                                  detect_high_interest_areas)
+                                  calculate_pixel_interests)
 
 
 def calculate_psnr(originalImage, hybridImage):
@@ -59,7 +59,7 @@ def stitch_with_gaussian_blur(lowDTImageObject, highDTImageObject, sparsityPerce
     kernelTwoDFlat = np.ravel(kernelTwoD)
 
     maskToSee = np.zeros(stitchedImage.size)
-    maskToSee[impPixelCoords] = detect_high_interest_areas(gradientsLowDTImage, impPixelCoords)
+    maskToSee[impPixelCoords] = calculate_pixel_interests(gradientsLowDTImage, impPixelCoords)
 
     blurdMask = np.convolve(maskToSee, kernelTwoDFlat, mode='same').reshape(stitchedImage.shape)
 

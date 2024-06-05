@@ -41,7 +41,7 @@ class TestSparseImageGen(unittest.TestCase):
              [0, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, 1 / np.sqrt(2)],
              [0, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0], [0, 0, 0, 0, 0]])
         sharpIndices = detect_sharp_edges_indices(gradients, sparsityPercent)
-        self.assertEqual(sharpIndices.all(), expectedSharpIndices.all())
+        self.assertEqual(0, np.linalg.norm(sharpIndices - expectedSharpIndices))
 
     def test_detect_high_interest_areas(self):
         imageGradients = np.asarray(
@@ -59,14 +59,13 @@ class TestSparseImageGen(unittest.TestCase):
         dwellTimes = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
         expectedDwellTimes = np.asarray([[300, 100, 100, 100, 100]])
         self.assertEqual(0, np.linalg.norm(dwellTimes - expectedDwellTimes))
-    
+
     def test_all_zeros_dtimes(self):
         pixelInterests = np.zeros(5)
         availableDwellTimes = np.asarray([10, 30, 40, 50, 100, 200, 300])
         dwellTimes = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
         expectedDwellTimes = np.asarray([10, 10, 10, 10, 10])
         self.assertEqual(0, np.linalg.norm(dwellTimes - expectedDwellTimes))
-        
 
 
 if __name__ == '__main__':

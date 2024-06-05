@@ -125,8 +125,8 @@ for each in availableImages:
         secondTestImage = each
         break
 
-display_scan_pattern(firstTestImage, 15, np.asarray([10, 30, 40, 50, 100, 200, 300]))
-sparseImageObject = generate_sparse_image(firstTestImage, 15, np.asarray([10, 30, 40, 50, 100, 200, 300]))
+display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
+sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)
 display_stitched_image(firstTestImage, secondTestImage, 15, 'normal')
 display_stitched_image(firstTestImage, secondTestImage, 15, 'gaussian', 3)

@@ -51,14 +51,22 @@ class TestSparseImageGen(unittest.TestCase):
         sharpEdgeIndices = np.asarray([0, 1, 5, 7, 8])
         highInterestAreas = calculate_pixel_interests(imageGradients, sharpEdgeIndices)
         expectedHighAreas = np.asarray([1, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4])
-        self.assertEqual(highInterestAreas.all(), expectedHighAreas.all())
+        self.assertEqual(0, np.linalg.norm(highInterestAreas - expectedHighAreas))
 
     def test_pixelwise_dtime(self):
         pixelInterests = np.asarray([1, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4])
         availableDwellTimes = np.asarray([10, 30, 40, 50, 100, 200, 300])
         dwellTimes = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
-        expectedDwellTimes = np.asarray([[1, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4]]) * 300
-        self.assertEqual(dwellTimes.all(), expectedDwellTimes.all())
+        expectedDwellTimes = np.asarray([[300, 100, 100, 100, 100]])
+        self.assertEqual(0, np.linalg.norm(dwellTimes - expectedDwellTimes))
+    
+    def test_all_zeros_dtimes(self):
+        pixelInterests = np.zeros(5)
+        availableDwellTimes = np.asarray([10, 30, 40, 50, 100, 200, 300])
+        dwellTimes = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
+        expectedDwellTimes = np.asarray([10, 10, 10, 10, 10])
+        self.assertEqual(0, np.linalg.norm(dwellTimes - expectedDwellTimes))
+        
 
 
 if __name__ == '__main__':

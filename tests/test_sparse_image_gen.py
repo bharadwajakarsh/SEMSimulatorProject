@@ -55,9 +55,8 @@ class TestSparseImageGen(unittest.TestCase):
 
     def test_pixelwise_dtime(self):
         pixelInterests = np.asarray([1, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4])
-        maxDwellTime = 300
-        minDwellTime = 0
-        dwellTimes = calculate_pixelwise_dtime(pixelInterests, maxDwellTime, minDwellTime)
+        availableDwellTimes = np.asarray([10, 30, 40, 50, 100, 200, 300])
+        dwellTimes = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
         expectedDwellTimes = np.asarray([[1, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4]]) * 300
         self.assertEqual(dwellTimes.all(), expectedDwellTimes.all())
 

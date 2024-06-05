@@ -38,11 +38,14 @@ def calculate_pixel_interests(relativeGradientsImage, sharpEdgeIndices):
     return np.ravel(relativeGradientsImage)[sharpEdgeIndices]
 
 
-def calculate_pixelwise_dtime(pixelInterests, maxDwellTime, minDwellTime):
-    return minDwellTime + pixelInterests * (maxDwellTime - minDwellTime)
+def calculate_pixelwise_dtime(pixelInterests, availableDwellTimes):
+    maxDwellTime = max(availableDwellTimes)
+    minDwellTime = min(availableDwellTimes)
+    dwellTimes = minDwellTime + pixelInterests * (maxDwellTime - minDwellTime)
+    return np.asarray([min(availableDwellTimes, key=lambda x: abs(x - dtime))for dtime in dwellTimes])
 
 
-def extract_sparse_features(extractedImage, sparsityPercent, maxDwellTime, minDwellTime):
+def extract_sparse_features(extractedImage, sparsityPercent, availableDwellTimes):
     relativeGradientsImage = compute_image_of_relative_gradients(extractedImage)
     sharpEdgesIndices = detect_sharp_edges_indices(relativeGradientsImage, sparsityPercent)
     pixelInterests = calculate_pixel_interests(relativeGradientsImage, sharpEdgesIndices)
@@ -50,19 +53,17 @@ def extract_sparse_features(extractedImage, sparsityPercent, maxDwellTime, minDw
     if max(pixelInterests) == 0:
         raise RuntimeError("Useless Image. No edges present")
 
-    estDwellTime = calculate_pixelwise_dtime(pixelInterests, maxDwellTime, minDwellTime)
+    estDwellTime = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
 
     return np.array([sharpEdgesIndices, pixelInterests, estDwellTime])
 
 
-def generate_sparse_image(imageObject, sparsityPercent, maxDwellTime, minDwellTime):
+def generate_sparse_image(imageObject, sparsityPercent, availableDwellTimes):
     if sparsityPercent < 0 or sparsityPercent > 100:
         raise ValueError("illegal sparsity percentage")
-    if maxDwellTime <= minDwellTime:
-        raise ValueError("Invalid range for dwell-time")
 
     imageSizeDef = imageObject.imageSize
     ourImage = imageObject.extractedImage
-    sparseFeatures = extract_sparse_features(ourImage, sparsityPercent, maxDwellTime, minDwellTime)
+    sparseFeatures = extract_sparse_features(ourImage, sparsityPercent, availableDwellTimes)
 
     return SparseImage(sparseFeatures, imageSizeDef)

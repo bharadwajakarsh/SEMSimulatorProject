@@ -22,7 +22,7 @@ class TestStitchImages(unittest.TestCase):
             [[0, 20, 0, 0, 0], [0, 0, 10, 0, 0], [0, 0, 0, 1, 0], [0, 5, 0, 165, 1], [2, 0, 0, 1, 0]]).astype(float)
         stitchedImageForTest = stitch_images(exampleLDTImage, exampleHDTImage, 15)
 
-        self.assertEqual(expectedStitchedImage.all(), stitchedImageForTest.all())
+        self.assertEqual(0, np.linalg.norm(expectedStitchedImage - stitchedImageForTest))
 
     def test_stitch_with_gaussian_blur(self):
         exampleLDTImage = SEMImage(20, 5, np.zeros((5, 5), dtype=float))
@@ -34,10 +34,10 @@ class TestStitchImages(unittest.TestCase):
         exampleHDTImage = SEMImage(200, 5, np.ones((5, 5), dtype=float))
 
         expectedStitchedImage = np.array(
-            [[0, 20, 0, 0, 0], [0, 0, 10, 0, 0], [0, 0, 1, 1, 1], [1, 5, 0, 1, 1], [1, 1, 1, 1, 1]]).astype(float)
+            [[0, 20, 0, 0, 0], [0, 0, 10, 0, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]]).astype(float)
         stitchedImageForTest = stitch_with_gaussian_blur(exampleLDTImage, exampleHDTImage, 15, 3)
 
-        self.assertEqual(expectedStitchedImage.all(), stitchedImageForTest.all())
+        self.assertEqual(0, np.linalg.norm(expectedStitchedImage - stitchedImageForTest))
 
     def test_zero_mse_psnr(self):
         firstImage = np.ones((5, 5))

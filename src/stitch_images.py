@@ -5,12 +5,6 @@ from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sh
                                   calculate_pixel_interests)
 
 
-def calculate_psnr(originalImage, hybridImage):
-    if np.linalg.norm(originalImage - hybridImage) == 0:
-        return float('inf')
-    return -10 * np.log10(np.mean((originalImage - hybridImage) ** 2))
-
-
 def get_numpy_gaussian_kernel(kernelSize, sigma):
     kernel = np.exp(-(np.arange(kernelSize) - kernelSize // 2) ** 2 / (2 * sigma ** 2))
     return kernel / np.sum(kernel)

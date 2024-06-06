@@ -29,7 +29,7 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
 
     stitchedImageFlat[impPixelCoords] = highDTImageFlat[impPixelCoords]
 
-    return np.reshape(stitchedImage, lowDTImageObject.extractedImage.shape)
+    return np.reshape(stitchedImageFlat, lowDTImageObject.extractedImage.shape)
 
 
 def stitch_with_gaussian_blur(lowDTImageObject, highDTImageObject, sparsityPercent, kernelSize):

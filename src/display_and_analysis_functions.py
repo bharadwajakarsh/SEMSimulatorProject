@@ -67,6 +67,16 @@ def display_mask(sparseImageObject: SparseImage, originalImageObject: SEMImage):
 
 
 def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent, stitchType, kernelSize=None):
+    if stitchType == 'gaussian':
+        if not kernelSize:
+            raise ValueError('Must specify kernel size for gaussian-stitching method')
+        if not isinstance(kernelSize, int):
+            raise ValueError("Kernel size must be an integer.")
+        if kernelSize <= 0:
+            raise ValueError("Kernel size must be a positive integer.")
+        if kernelSize % 2 == 0:
+            raise ValueError("Kernel size must be an odd integer.")
+
     plt.figure()
     plt.imshow(lowDTImageObject.extractedImage, cmap='grey')
     plt.title("Low DT Image")

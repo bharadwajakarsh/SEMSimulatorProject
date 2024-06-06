@@ -118,22 +118,19 @@ def compare_stitching_methods(lowDTImageObject, highDTImageObject, sparsityPerce
 
 
 """
-Execution
+Execution 
 
 from src.initialize_database import refresh_database
 from src.generate_new_images import generate_new_images
 
 
-path = "C:/Users/akbh02/JupyterNotebooks"
+path = "D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024"
 availableImages = refresh_database(path)
-
-firstTestImage = generate_new_images(availableImages, 10, 10)[5]
-secondTestImage = np.zeros(firstTestImage.extractedImage.shape)
-
-for each in availableImages:
-    if each.dwellTime >= 100:
-        secondTestImage = each
-        break
+imageSubset = availableImages[3:9]
+newImageSet = generate_new_images(imageSubset, 4, 10)
+imageSubset = sorted(imageSubset+newImageSet, key=lambda eachImage: eachImage.dwellTime)
+firstTestImage = imageSubset[0]
+secondTestImage = imageSubset[-1]
 
 display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))

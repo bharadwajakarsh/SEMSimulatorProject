@@ -63,7 +63,7 @@ def nn_interpolation_for_sparse_image(randomSparseImageObject, numberNeighbours)
     interpolatedImage = np.zeros((imageSize, imageSize))
     points = np.column_stack((xCoords, yCoords))
 
-    vor = Voronoi(points)
+    vorObject = Voronoi(points)
     kDTree = cKDTree(points)
 
     knownPixels = set(zip(xCoords, yCoords))
@@ -72,7 +72,7 @@ def nn_interpolation_for_sparse_image(randomSparseImageObject, numberNeighbours)
     for i in range(imageSize):
         for j in range(imageSize):
             if (j, i) not in knownPixels:
-                interpolatedImage[i, j] = interpolate_pixel(j, i, points, vor, kDTree, numberNeighbours,
+                interpolatedImage[i, j] = interpolate_pixel(j, i, points, vorObject, kDTree, numberNeighbours,
                                                             randomPixelIntensities)
                 count = count + 1
                 print(count)

@@ -3,6 +3,8 @@ import numpy as np
 import glob
 import os
 
+from PIL import Image
+
 
 class SEMImage:
     def __init__(self, dwellTime, imageSize, extractedImage):
@@ -11,7 +13,13 @@ class SEMImage:
         self.extractedImage = extractedImage
 
 
-def refresh_database(folderPath):
+class SIMSImage:
+    def __init__(self, imageSize, spectrometryImages):
+        self.imageSize = imageSize
+        self.spectrometryImages = spectrometryImages
+
+
+def read_sem_images(folderPath):
     imageSet = []
     csvFiles = glob.glob(os.path.join(folderPath, '*.csv'))
     if not csvFiles:
@@ -44,12 +52,30 @@ def refresh_database(folderPath):
     return imageSet
 
 
+def read_sims_images(SIMSFolderPath):
+    imageSet = []
+    for eachFolder in os.listdir(SIMSFolderPath):
+        sampleFolder = os.path.join(SIMSFolderPath, eachFolder)
+        spectrometryImages = []
+        imageSize = 0
+        if os.path.isdir(sampleFolder):
+            tiffFiles = glob.glob(os.path.join(sampleFolder, '*.tiff'))
+            for eachImagePath in tiffFiles:
+                imageOfOneMass = np.array(Image.open(eachImagePath))
+                imageSize = len(imageOfOneMass)
+                spectrometryImages.append(imageOfOneMass)
+        image = SIMSImage(imageSize, spectrometryImages)
+        imageSet.append(image)
+
+    return imageSet
+
+
 """
 Execution
 import matplotlib.pyplot as plt
 
 path = "C:/Users/akbh02/JupyterNotebooks"
-newImageSet = refresh_database(path)
+newImageSet = read_sem_images(path)
 
 for image in newImageSet[:2]:
     plt.figure()

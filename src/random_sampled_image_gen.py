@@ -8,15 +8,35 @@ class RandomSparseImage:
         self.imageSize = imageSize
 
 
-def generate_random_sparse_image(imageObject, sparsityPercent):
+def generate_random_sparse_image_sem(imageObject, sparsityPercent):
     imageToSample = imageObject.extractedImage
     imageSize = imageObject.imageSize
+    randomPixelIndices = generate_random_pixel_locations(imageSize, sparsityPercent)
+    imageOpened = np.ravel(imageToSample)
+    randomPixelIntensities = imageOpened[randomPixelIndices]
+    randomSparseFeatures = np.array([randomPixelIndices % imageSize, randomPixelIndices // imageSize,
+                                     randomPixelIntensities]).astype(int)
+
     cornersToAdd = add_corners_to_sample_set(imageToSample)
-    randomSparseFeatures = randomly_sample_image(imageToSample, sparsityPercent)
 
     for i in range(len(cornersToAdd)):
         if not np.any(np.all(randomSparseFeatures == cornersToAdd[:, i][:, None], axis=0)):
             randomSparseFeatures = np.concatenate((randomSparseFeatures, cornersToAdd[:, i][:, None]), axis=1)
+
+    return RandomSparseImage(randomSparseFeatures, imageSize)
+
+
+def generate_random_sparse_image_sims(imageObject, sparsityPercent):
+    imagesToSample = imageObject.spectrometryImages
+    imageSize = imageObject.imageSize
+    randomPixelIndices = generate_random_pixel_locations(imageSize, sparsityPercent)
+    randomPixelIntensities = np.zeros((len(imagesToSample), len(randomPixelIndices)))
+    for i, eachChannelImage in enumerate(imagesToSample):
+        imageOpened = np.ravel(eachChannelImage)
+        randomPixelIntensities[i] = imageOpened[randomPixelIndices]
+
+    randomSparseFeatures = np.array([randomPixelIndices % imageSize, randomPixelIndices // imageSize,
+                                     randomPixelIntensities]).astype(int)
 
     return RandomSparseImage(randomSparseFeatures, imageSize)
 
@@ -29,13 +49,10 @@ def add_corners_to_sample_set(imageToSample):
     return np.array([xCornerCoords, yCornerCoords, cornerPixelIntensities])
 
 
-def randomly_sample_image(imageToSample, sparsityPercent):
-    sampleSize = int(imageToSample.shape[0] * imageToSample.shape[1] * sparsityPercent / 100)
-    imageOpened = np.ravel(imageToSample)
-    randomPixelIndices = np.random.choice(imageToSample.size, size=sampleSize, replace=False)
-    randomPixelIntensities = imageOpened[randomPixelIndices]
-    return np.array([randomPixelIndices % imageToSample.shape[0], randomPixelIndices // imageToSample.shape[0],
-                     randomPixelIntensities]).astype(int)
+def generate_random_pixel_locations(imageSize, sparsityPercent):
+    sampleSize = int(imageSize * imageSize * sparsityPercent / 100)
+    randomPixelIndices = np.random.choice(imageSize, size=sampleSize, replace=False)
+    return randomPixelIndices
 
 
 def interpolate_pixel(x, y, points, vorObject, kDTree, numberNeighbours, randomPixelIntensities):

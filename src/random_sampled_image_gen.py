@@ -24,9 +24,9 @@ def generate_random_sparse_image(imageObject, sparsityPercent):
 def add_corners_to_sample_set(imageToSample):
     xCornerCoords = np.array([0, 0, len(imageToSample) - 1, len(imageToSample) - 1])
     yCornerCoords = np.array([0, len(imageToSample) - 1, 0, len(imageToSample) - 1])
-    conerPixelIntensities = np.array(
+    cornerPixelIntensities = np.array(
         [imageToSample[xCornerCoords[i], yCornerCoords[i]] for i in range(len(xCornerCoords))])
-    return np.array([xCornerCoords, yCornerCoords, conerPixelIntensities])
+    return np.array([xCornerCoords, yCornerCoords, cornerPixelIntensities])
 
 
 def randomly_sample_image(imageToSample, sparsityPercent):

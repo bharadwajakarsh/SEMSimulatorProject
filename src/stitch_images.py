@@ -17,19 +17,24 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
         raise ValueError("Image is not of type SEM Object")
     if lowDTImageObject.dwellTime > highDTImageObject.dwellTime:
         raise ValueError("First image should be of lower dwell-time")
+    if lowDTImageObject.extractedImage.shape != highDTImageObject.extractedImage.shape:
+        raise ValueError("Images must have the same shape")
 
-    stitchedImage = lowDTImageObject.extractedImage
+    stitchedImage = lowDTImageObject.extractedImage.copy()
     highDTImage = highDTImageObject.extractedImage
 
     gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
     impPixelCoords = detect_sharp_edges_indices(gradientsLowDTImage, sparsityPercent)
 
-    stitchedImageFlat = np.ravel(stitchedImage)
-    highDTImageFlat = np.ravel(highDTImage)
+    stitchedImageFlat = stitchedImage.ravel()
+    highDTImageFlat = highDTImage.ravel()
+
+    if np.any(impPixelCoords >= stitchedImageFlat.size):
+        raise ValueError("Important pixel coordinates out of bounds")
 
     stitchedImageFlat[impPixelCoords] = highDTImageFlat[impPixelCoords]
 
-    return np.reshape(stitchedImageFlat, lowDTImageObject.extractedImage.shape)
+    return stitchedImageFlat.reshape(lowDTImageObject.extractedImage.shape)
 
 
 def stitch_with_gaussian_blur(lowDTImageObject, highDTImageObject, sparsityPercent, kernelSize):

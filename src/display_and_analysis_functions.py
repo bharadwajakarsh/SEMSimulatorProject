@@ -67,7 +67,6 @@ def display_mask(sparseImageObject: SparseImage, originalImageObject: SEMImage):
 
 
 def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent):
-
     plt.figure()
     plt.imshow(lowDTImageObject.extractedImage, cmap='grey')
     plt.title("Low DT Image")
@@ -89,6 +88,7 @@ def calculate_psnr(originalImage, hybridImage):
     if np.linalg.norm(originalImage - hybridImage) == 0:
         return float('inf')
     return -10 * np.log10(np.mean((originalImage - hybridImage) ** 2))
+
 
 """
 Execution 

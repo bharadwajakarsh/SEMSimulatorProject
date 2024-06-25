@@ -1,10 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from collections import defaultdict
 
-from src.sparse_image_gen import generate_sparse_image
+from src.sparse_image_gen import extract_sparse_features
 from src.sparse_image_gen import SparseImage
 from src.initialize_database import SEMImage
 from src.stitch_images import stitch_images
+
+
+def group_features_by_dwell_times(sparseFeatures):
+    columnIndex = 2
+    groupedSparseFeatures = defaultdict(list)
+
+    for eachRow in sparseFeatures:
+        dwellTime = eachRow[columnIndex]
+        groupedSparseFeatures[dwellTime].append(eachRow.tolist())
+    return groupedSparseFeatures
 
 
 def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType):
@@ -16,28 +27,30 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         raise ValueError("illegal dwell-time")
     if min(availableDwellTimes) < 0:
         raise ValueError("illegal dwell-time")
+    ourImage = lowDTimageObject.extractedImage
 
-    sparseImageObject = generate_sparse_image(lowDTimageObject, sparsityPercent, availableDwellTimes)
-    imageSize = sparseImageObject.imageSize
+    imageSize = lowDTimageObject.imageSize
+    sparseFeatures = extract_sparse_features(ourImage, sparsityPercent, availableDwellTimes)
+    impPixelCoords = sparseFeatures[0, :].astype(int)
+    groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
 
-    impPixelCoords = sparseImageObject.sparseFeatures[0, :].astype(int)
-    if scanType == "descending":
-        sortedIntensities = np.argsort(sparseImageObject.sparseFeatures[1, :])[::-1]
+    if scanType == "ascending":
+        sortedIntensities = np.argsort(sparseFeatures[1, :])
         sortedPixelCoords = impPixelCoords[sortedIntensities]
         ycoords = sortedPixelCoords // imageSize
         xcoords = sortedPixelCoords % imageSize
         return ycoords, xcoords
 
-    elif scanType == "descending plus z":
+    elif scanType == "ascending plus z":
         ycoords = impPixelCoords // imageSize
         xcoords = impPixelCoords % imageSize
 
         combinedIndices = np.array(list(zip(ycoords, xcoords)))
-        sortedPixelCoords = np.array(sorted(combinedIndices, key=lambda x: (-x[0], x[1])))
+        sortedPixelCoords = np.array(sorted(combinedIndices, key=lambda x: (x[0], x[1])))
 
         return sortedPixelCoords[:, 1], sortedPixelCoords[:, 0]
 
-    elif scanType == "descending plus raster":
+    elif scanType == "ascending plus raster":
         ycoords = impPixelCoords // imageSize
         xcoords = impPixelCoords % imageSize
 

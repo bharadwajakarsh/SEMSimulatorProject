@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 from src.sparse_image_gen import generate_sparse_image
 from src.sparse_image_gen import SparseImage
 from src.initialize_database import SEMImage
-from src.stitch_images import stitch_images, stitch_with_gaussian_blur
+from src.stitch_images import stitch_images
 
 
-def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes):
+def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes):
     if not isinstance(lowDTimageObject, SEMImage):
         raise TypeError("First image should be of SEM Object type")
     if sparsityPercent < 0 or sparsityPercent > 100:
@@ -25,6 +25,13 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes)
 
     xcoords = sortedPixelCoords // imgSize
     ycoords = sortedPixelCoords % imgSize
+
+    return xcoords, ycoords
+
+
+def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes):
+
+    xcoords, ycoords = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes)
 
     plt.figure(figsize=(20, 20))
     plt.title("Path for scanning first 1000 pixels")
@@ -90,25 +97,25 @@ def calculate_psnr(originalImage, hybridImage):
     return -10 * np.log10(np.mean((originalImage - hybridImage) ** 2))
 
 
-"""
-Execution 
-
-from src.initialize_database import refresh_database
+from src.initialize_database import read_sem_images
 from src.generate_new_images import generate_new_images
 
-
 path = "D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024"
-availableImages = refresh_database(path)
+availableImages = read_sem_images(path)
 imageSubset = availableImages[3:9]
 newImageSet = generate_new_images(imageSubset, 4, 10)
-imageSubset = sorted(imageSubset+newImageSet, key=lambda eachImage: eachImage.dwellTime)
+imageSubset = sorted(imageSubset + newImageSet, key=lambda eachImage: eachImage.dwellTime)
 firstTestImage = imageSubset[0]
 secondTestImage = imageSubset[-1]
+display_stitched_image(firstTestImage, secondTestImage, 15)
+
+"""
+Execution
 
 display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)
-display_stitched_image(firstTestImage, secondTestImage, 15, 'normal')
+
 display_stitched_image(firstTestImage, secondTestImage, 15, 'gaussian', 3)
 plot_dwell_times_histogram(sparseImageObject.sparseFeatures[2, :], 100)
 print(compare_stitching_methods(firstTestImage, secondTestImage, 15, 3))

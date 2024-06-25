@@ -50,8 +50,8 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         raise ValueError("Invalid scan type")
 
 
-def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes):
-    ycoords, xcoords = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes)
+def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType):
+    ycoords, xcoords = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
 
     plt.figure(figsize=(20, 20))
     plt.title("Path for scanning first 1000 pixels")

@@ -30,7 +30,6 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
 
 
 def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes):
-
     xcoords, ycoords = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes)
 
     plt.figure(figsize=(20, 20))
@@ -97,6 +96,9 @@ def calculate_psnr(originalImage, hybridImage):
     return -10 * np.log10(np.mean((originalImage - hybridImage) ** 2))
 
 
+"""
+Execution
+
 from src.initialize_database import read_sem_images
 from src.generate_new_images import generate_new_images
 
@@ -107,11 +109,8 @@ newImageSet = generate_new_images(imageSubset, 4, 10)
 imageSubset = sorted(imageSubset + newImageSet, key=lambda eachImage: eachImage.dwellTime)
 firstTestImage = imageSubset[0]
 secondTestImage = imageSubset[-1]
+
 display_stitched_image(firstTestImage, secondTestImage, 15)
-
-"""
-Execution
-
 display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)

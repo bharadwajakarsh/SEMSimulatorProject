@@ -7,35 +7,56 @@ from src.initialize_database import SEMImage
 from src.stitch_images import stitch_images
 
 
-def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes):
+def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType):
     if not isinstance(lowDTimageObject, SEMImage):
         raise TypeError("First image should be of SEM Object type")
     if sparsityPercent < 0 or sparsityPercent > 100:
         raise ValueError("illegal sparsity percentage")
+    if not all(isinstance(dwellTime, int) for dwellTime in availableDwellTimes) or min(availableDwellTimes) < 0:
+        raise ValueError("illegal dwell-time")
     if min(availableDwellTimes) < 0:
         raise ValueError("illegal dwell-time")
 
     sparseImageObject = generate_sparse_image(lowDTimageObject, sparsityPercent, availableDwellTimes)
-    imgSize = sparseImageObject.imageSize
+    imageSize = sparseImageObject.imageSize
 
     impPixelCoords = sparseImageObject.sparseFeatures[0, :].astype(int)
-    sortedIntensities = np.argsort(sparseImageObject.sparseFeatures[1, :])[::-1]
+    if scanType == "descending":
+        sortedIntensities = np.argsort(sparseImageObject.sparseFeatures[1, :])[::-1]
+        sortedPixelCoords = impPixelCoords[sortedIntensities]
+        ycoords = sortedPixelCoords // imageSize
+        xcoords = sortedPixelCoords % imageSize
+        return ycoords, xcoords
 
-    sortedPixelCoords = impPixelCoords[sortedIntensities]
+    elif scanType == "descending plus z":
+        ycoords = impPixelCoords // imageSize
+        xcoords = impPixelCoords % imageSize
 
-    xcoords = sortedPixelCoords // imgSize
-    ycoords = sortedPixelCoords % imgSize
+        combinedIndices = np.array(list(zip(ycoords, xcoords)))
+        sortedPixelCoords = np.array(sorted(combinedIndices, key=lambda x: (-x[0], x[1])))
 
-    return xcoords, ycoords
+        return sortedPixelCoords[:, 1], sortedPixelCoords[:, 0]
+
+    elif scanType == "descending plus raster":
+        ycoords = impPixelCoords // imageSize
+        xcoords = impPixelCoords % imageSize
+
+        combinedIndices = np.array(list(zip(ycoords, xcoords)))
+        sortedPixelCoords = combinedIndices[np.lexsort((combinedIndices[:, 1], combinedIndices[:, 0]))]
+
+        return sortedPixelCoords[:, 1], sortedPixelCoords[:, 0]
+
+    else:
+        raise ValueError("Invalid scan type")
 
 
 def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes):
-    xcoords, ycoords = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes)
+    ycoords, xcoords = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes)
 
     plt.figure(figsize=(20, 20))
     plt.title("Path for scanning first 1000 pixels")
     plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
-    plt.plot(xcoords[:1000], ycoords[:1000], color='white', linewidth=1)
+    plt.plot(ycoords[:1000], xcoords[:1000], color='white', linewidth=1)
     plt.show()
 
 

@@ -29,14 +29,15 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         raise ValueError("illegal dwell-time")
     if min(availableDwellTimes) < 0:
         raise ValueError("illegal dwell-time")
-    ourImage = lowDTimageObject.extractedImage
 
+    ourImage = lowDTimageObject.extractedImage
     imageSize = lowDTimageObject.imageSize
+
     sparseFeatures = extract_sparse_features(ourImage, sparsityPercent, availableDwellTimes)
-    impPixelCoords = sparseFeatures[0, :].astype(int)
     groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
 
     if scanType == "ascending":
+        impPixelCoords = sparseFeatures[0, :].astype(int)
         sortedIntensities = np.argsort(sparseFeatures[1, :])
         sortedPixelCoords = impPixelCoords[sortedIntensities]
         ycoords = sortedPixelCoords // imageSize
@@ -44,22 +45,28 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         return ycoords, xcoords
 
     elif scanType == "ascending plus z":
-        ycoords = impPixelCoords // imageSize
-        xcoords = impPixelCoords % imageSize
+        groupedPixelLocations = {}
+        for eachUniqueDwellTime in groupedSparseFeatures:
+            impPixelCoords = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
+            ycoords = impPixelCoords // imageSize
+            xcoords = impPixelCoords % imageSize
+            combinedIndices = np.array(list(zip(ycoords, xcoords)))
+            sortedPixelCoords = np.array(sorted(combinedIndices, key=lambda x: (x[0], x[1])))
+            groupedPixelLocations[eachUniqueDwellTime] = sortedPixelCoords
 
-        combinedIndices = np.array(list(zip(ycoords, xcoords)))
-        sortedPixelCoords = np.array(sorted(combinedIndices, key=lambda x: (x[0], x[1])))
-
-        return sortedPixelCoords[:, 1], sortedPixelCoords[:, 0]
+        return groupedPixelLocations
 
     elif scanType == "ascending plus raster":
-        ycoords = impPixelCoords // imageSize
-        xcoords = impPixelCoords % imageSize
+        groupedPixelLocations = {}
+        for eachUniqueDwellTime in groupedSparseFeatures:
+            impPixelCoords = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
+            ycoords = impPixelCoords // imageSize
+            xcoords = impPixelCoords % imageSize
+            combinedIndices = np.array(list(zip(ycoords, xcoords)))
+            sortedPixelCoords = combinedIndices[np.lexsort((combinedIndices[:, 1], combinedIndices[:, 0]))]
+            groupedPixelLocations[eachUniqueDwellTime] = sortedPixelCoords
 
-        combinedIndices = np.array(list(zip(ycoords, xcoords)))
-        sortedPixelCoords = combinedIndices[np.lexsort((combinedIndices[:, 1], combinedIndices[:, 0]))]
-
-        return sortedPixelCoords[:, 1], sortedPixelCoords[:, 0]
+        return groupedPixelLocations
 
     else:
         raise ValueError("Invalid scan type")

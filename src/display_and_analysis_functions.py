@@ -85,7 +85,9 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes,
         groupedPixelLocations = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
         for i, eachUniqueDwellTime in enumerate(groupedPixelLocations):
             ycoords, xcoords = groupedPixelLocations[eachUniqueDwellTime]
+            plt.figure(figsize=(20, 20))
             plt.title("Path for scan number {i}]")
+            plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
             plt.plot(ycoords[:1000], xcoords[:1000], color='white', linewidth=1)
             plt.show()
 

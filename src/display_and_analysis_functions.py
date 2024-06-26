@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from collections import defaultdict
 
 from src.sparse_image_gen import extract_sparse_features
 from src.sparse_image_gen import SparseImage
@@ -10,11 +9,14 @@ from src.stitch_images import stitch_images
 
 def group_features_by_dwell_times(sparseFeatures):
     columnIndex = 2
-    groupedSparseFeatures = defaultdict(list)
+    uniqueDwellTimes = np.unique(sparseFeatures[columnIndex])
+    groupedSparseFeatures = {value: [] for value in uniqueDwellTimes}
 
-    for eachRow in sparseFeatures:
-        dwellTime = eachRow[columnIndex]
-        groupedSparseFeatures[dwellTime].append(eachRow.tolist())
+    for eachDwellTime in uniqueDwellTimes:
+        mask = sparseFeatures[columnIndex] == eachDwellTime
+        featuresOfGroup = sparseFeatures[:, mask]
+        groupedSparseFeatures[eachDwellTime] = featuresOfGroup
+
     return groupedSparseFeatures
 
 

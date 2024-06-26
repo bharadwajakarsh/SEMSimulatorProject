@@ -73,13 +73,21 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
 
 
 def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType):
-    ycoords, xcoords = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
+    if scanType == "ascending":
+        ycoords, xcoords = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
+        plt.figure(figsize=(20, 20))
+        plt.title("Path for scanning first 1000 pixels")
+        plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
+        plt.plot(ycoords[:1000], xcoords[:1000], color='white', linewidth=1)
+        plt.show()
 
-    plt.figure(figsize=(20, 20))
-    plt.title("Path for scanning first 1000 pixels")
-    plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
-    plt.plot(ycoords[:1000], xcoords[:1000], color='white', linewidth=1)
-    plt.show()
+    elif scanType == "ascending plus z" or "ascending plus raster":
+        groupedPixelLocations = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
+        for i, eachUniqueDwellTime in enumerate(groupedPixelLocations):
+            ycoords, xcoords = groupedPixelLocations[eachUniqueDwellTime]
+            plt.title("Path for scan number {i}]")
+            plt.plot(ycoords[:1000], xcoords[:1000], color='white', linewidth=1)
+            plt.show()
 
 
 def plot_dwell_times_histogram(dwellTimesFeature, bins: int):

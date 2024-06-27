@@ -40,8 +40,8 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         xImportantPixels = sparseFeatures[0, :].astype(int)
         yImportantPixels = sparseFeatures[1, :].astype(int)
         sortedIntensities = np.argsort(sparseFeatures[2, :])
-        ycoords = xImportantPixels[sortedIntensities]
-        xcoords = yImportantPixels[sortedIntensities]
+        ycoords = yImportantPixels[sortedIntensities]
+        xcoords = xImportantPixels[sortedIntensities]
         return ycoords, xcoords
 
     elif scanType == "ascending plus z":

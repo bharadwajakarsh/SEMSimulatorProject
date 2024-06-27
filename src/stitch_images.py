@@ -29,10 +29,10 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
     stitchedImageFlat = stitchedImage.ravel()
     highDTImageFlat = highDTImage.ravel()
 
-    if np.any(ySharpLocation >= stitchedImageFlat.shape[1]):
+    if np.any(ySharpLocation >= stitchedImageFlat.shape[0]):
         raise ValueError("Important pixel coordinates out of bounds")
 
-    if np.any(ySharpLocation >= stitchedImageFlat.shape[0]):
+    if np.any(xSharpLocation >= stitchedImageFlat.shape[1]):
         raise ValueError("Important pixel coordinates out of bounds")
 
     stitchedImageFlat[ySharpLocation, ySharpLocation] = highDTImageFlat[ySharpLocation, ySharpLocation]

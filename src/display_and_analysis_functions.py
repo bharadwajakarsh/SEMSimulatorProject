@@ -8,7 +8,7 @@ from src.stitch_images import stitch_images
 
 
 def group_features_by_dwell_times(sparseFeatures):
-    columnIndex = 2
+    columnIndex = 3
     uniqueDwellTimes = np.unique(sparseFeatures[columnIndex])
     groupedSparseFeatures = {value: [] for value in uniqueDwellTimes}
 

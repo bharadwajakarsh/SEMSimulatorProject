@@ -37,20 +37,20 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
     groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
 
     if scanType == "ascending":
-        impPixelCoords = sparseFeatures[0, :].astype(int)
+        xImportantPixels = sparseFeatures[0, :].astype(int)
+        yImportantPixels = sparseFeatures[1, :].astype(int)
         sortedIntensities = np.argsort(sparseFeatures[1, :])
-        sortedPixelCoords = impPixelCoords[sortedIntensities]
-        ycoords = sortedPixelCoords // imageSize
-        xcoords = sortedPixelCoords % imageSize
+        ycoords = xImportantPixels[sortedIntensities]
+        xcoords = yImportantPixels[sortedIntensities]
         return ycoords, xcoords
 
     elif scanType == "ascending plus z":
         groupedPixelLocations = {}
         for eachUniqueDwellTime in groupedSparseFeatures:
-            impPixelCoords = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
-            ycoords = impPixelCoords // imageSize
-            xcoords = impPixelCoords % imageSize
-            combinedIndices = np.array(list(zip(ycoords, xcoords)))
+            xImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
+            yImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][1, :]).astype(int)
+
+            combinedIndices = np.array(list(zip(yImportantPixels, xImportantPixels)))
             sortedPixelCoords = np.array(sorted(combinedIndices, key=lambda x: (x[0], x[1])))
             groupedPixelLocations[eachUniqueDwellTime] = sortedPixelCoords
 
@@ -59,10 +59,9 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
     elif scanType == "ascending plus raster":
         groupedPixelLocations = {}
         for eachUniqueDwellTime in groupedSparseFeatures:
-            impPixelCoords = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
-            ycoords = impPixelCoords // imageSize
-            xcoords = impPixelCoords % imageSize
-            combinedIndices = np.array(list(zip(ycoords, xcoords)))
+            xImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
+            yImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][1, :]).astype(int)
+            combinedIndices = np.array(list(zip(yImportantPixels, xImportantPixels)))
             sortedPixelCoords = combinedIndices[np.lexsort((combinedIndices[:, 1], combinedIndices[:, 0]))]
             groupedPixelLocations[eachUniqueDwellTime] = sortedPixelCoords
 
@@ -84,8 +83,8 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes,
     elif scanType == "ascending plus z" or "ascending plus raster":
         groupedPixelLocations = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
         for i, eachUniqueDwellTime in enumerate(groupedPixelLocations):
-            ycoords = groupedPixelLocations[eachUniqueDwellTime][:, 0]
-            xcoords = groupedPixelLocations[eachUniqueDwellTime][:, 1]
+            ycoords = groupedPixelLocations[eachUniqueDwellTime][:, 1]
+            xcoords = groupedPixelLocations[eachUniqueDwellTime][:, 0]
             plt.figure(figsize=(20, 20))
             plt.title("Path for scan number {i}]")
             plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
@@ -113,7 +112,10 @@ def display_mask(sparseImageObject: SparseImage, originalImageObject: SEMImage):
         raise TypeError("Input should be a 'SEM Image' object")
 
     imageToSee = np.zeros(originalImageObject.extractedImage.size)
-    imageToSee[sparseImageObject.sparseFeatures[0, :].astype(int)] = sparseImageObject.sparseFeatures[1, :]
+    xPixelLocations = sparseImageObject.sparseFeatures[0, :].astype(int)
+    yPixelLocations = sparseImageObject.sparseFeatures[1, :].astype(int)
+
+    imageToSee[yPixelLocations, xPixelLocations] = sparseImageObject.sparseFeatures[2, :]
     imageToSee = np.reshape(imageToSee, originalImageObject.extractedImage.shape)
 
     plt.figure()

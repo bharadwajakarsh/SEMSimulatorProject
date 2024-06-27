@@ -1,13 +1,7 @@
 import numpy as np
 
 from src.initialize_database import SEMImage
-from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edges_indices,
-                                  calculate_pixel_interests)
-
-
-def get_numpy_gaussian_kernel(kernelSize, sigma):
-    kernel = np.exp(-(np.arange(kernelSize) - kernelSize // 2) ** 2 / (2 * sigma ** 2))
-    return kernel / np.sum(kernel)
+from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edges_indices)
 
 
 def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):

@@ -35,21 +35,24 @@ class TestSparseImageGen(unittest.TestCase):
         image[0, 0] = 1.0
         image[2, 2] = 1.0
         image[2, 3] = 1.0
-        expectedSharpIndices = np.asarray([0, 1, 5, 7, 8])
+        expectedXSharpLocations = np.asarray([0, 1, 0, 2, 3])
+        expectedYSharpLocations = np.asarray([0, 0, 1, 1, 1])
         gradients = np.asarray(
             [[1, np.sqrt(2) / 4, 0, 0, 0], [np.sqrt(2) / 4, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0],
              [0, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, 1 / np.sqrt(2)],
              [0, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0], [0, 0, 0, 0, 0]])
-        sharpIndices = detect_sharp_edges_indices(gradients, sparsityPercent)
-        self.assertEqual(0, np.linalg.norm(sharpIndices - expectedSharpIndices))
+        xSharpLocations, ySharpLocations = detect_sharp_edges_indices(gradients, sparsityPercent)
+        self.assertTrue(np.array_equal(xSharpLocations, expectedXSharpLocations) and
+                        np.array_equal(ySharpLocations, expectedYSharpLocations))
 
     def test_detect_high_interest_areas(self):
         imageGradients = np.asarray(
             [[1, np.sqrt(2) / 4, 0, 0, 0], [np.sqrt(2) / 4, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0],
              [0, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, 1 / np.sqrt(2)],
              [0, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0], [0, 0, 0, 0, 0]])
-        sharpEdgeIndices = np.asarray([0, 1, 5, 7, 8])
-        highInterestAreas = calculate_pixel_interests(imageGradients, sharpEdgeIndices)
+        xSharpLocation = np.asarray([0, 1, 0, 2, 3])
+        ySharpLocation = np.asarray([0, 0, 1, 1, 1])
+        highInterestAreas = calculate_pixel_interests(imageGradients, xSharpLocation, ySharpLocation)
         expectedHighAreas = np.asarray([1, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4])
         self.assertEqual(0, np.linalg.norm(highInterestAreas - expectedHighAreas))
 
@@ -57,14 +60,7 @@ class TestSparseImageGen(unittest.TestCase):
         pixelInterests = np.asarray([1, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4])
         availableDwellTimes = np.asarray([10, 30, 40, 50, 100, 200, 300])
         dwellTimes = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
-        expectedDwellTimes = np.asarray([[300, 100, 100, 100, 100]])
-        self.assertEqual(0, np.linalg.norm(dwellTimes - expectedDwellTimes))
-
-    def test_all_zeros_dtimes(self):
-        pixelInterests = np.zeros(5)
-        availableDwellTimes = np.asarray([10, 30, 40, 50, 100, 200, 300])
-        dwellTimes = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
-        expectedDwellTimes = np.asarray([10, 10, 10, 10, 10])
+        expectedDwellTimes = np.asarray([[300, 10, 10, 10, 10]])
         self.assertEqual(0, np.linalg.norm(dwellTimes - expectedDwellTimes))
 
 

@@ -24,15 +24,18 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
     highDTImage = highDTImageObject.extractedImage
 
     gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
-    impPixelCoords = detect_sharp_edges_indices(gradientsLowDTImage, sparsityPercent)
+    xSharpLocation, ySharpLocation = detect_sharp_edges_indices(gradientsLowDTImage, sparsityPercent)
 
     stitchedImageFlat = stitchedImage.ravel()
     highDTImageFlat = highDTImage.ravel()
 
-    if np.any(impPixelCoords >= stitchedImageFlat.size):
+    if np.any(ySharpLocation >= stitchedImageFlat.shape[1]):
         raise ValueError("Important pixel coordinates out of bounds")
 
-    stitchedImageFlat[impPixelCoords] = highDTImageFlat[impPixelCoords]
+    if np.any(ySharpLocation >= stitchedImageFlat.shape[0]):
+        raise ValueError("Important pixel coordinates out of bounds")
+
+    stitchedImageFlat[ySharpLocation, ySharpLocation] = highDTImageFlat[ySharpLocation, ySharpLocation]
 
     return stitchedImageFlat.reshape(lowDTImageObject.extractedImage.shape)
 

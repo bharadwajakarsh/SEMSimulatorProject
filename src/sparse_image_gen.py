@@ -29,17 +29,23 @@ def detect_sharp_edges_indices(relativeGradientsImage, sparsityPercent):
 
     threshold = np.partition(relativeGradientsFlat, -sampleSize)[-sampleSize]
     sharpEdgesIndices = np.where(relativeGradientsFlat >= threshold)[0][:sampleSize]
-    return sharpEdgesIndices
+    return sharpEdgesIndices % relativeGradientsImage.shape[0], sharpEdgesIndices // relativeGradientsImage.shape[0]
 
 
-def calculate_pixel_interests(relativeGradientsImage, sharpEdgeIndices):
-    if any(x < 0 or x >= relativeGradientsImage.size for x in sharpEdgeIndices):
+def calculate_pixel_interests(relativeGradientsImage, xSharpLocation, ySharpLocation):
+    if any(x < 0 or x >= relativeGradientsImage.shape[1] for x in xSharpLocation):
         raise ValueError("Index value out of range")
-    return np.ravel(relativeGradientsImage)[sharpEdgeIndices]
+    if any(x < 0 or x >= relativeGradientsImage.shape[0] for x in ySharpLocation):
+        raise ValueError("Index value out of range")
+    return relativeGradientsImage[ySharpLocation, xSharpLocation]
 
 
 def calculate_pixelwise_dtime(pixelInterests, availableDwellTimes):
-    normalizedPixelInterests = (pixelInterests - np.min(pixelInterests))/(np.max(pixelInterests)-np.min(pixelInterests))
+    print(pixelInterests)
+    pixelInterestRange = max(pixelInterests) - min(pixelInterests)
+    if pixelInterestRange == 0:
+        raise ValueError("Useless image")
+    normalizedPixelInterests = (pixelInterests - np.min(pixelInterests))/pixelInterestRange
     maxDwellTime = max(availableDwellTimes)
     minDwellTime = min(availableDwellTimes)
     dwellTimes = minDwellTime + normalizedPixelInterests * (maxDwellTime - minDwellTime)
@@ -48,15 +54,15 @@ def calculate_pixelwise_dtime(pixelInterests, availableDwellTimes):
 
 def extract_sparse_features(extractedImage, sparsityPercent, availableDwellTimes):
     relativeGradientsImage = compute_image_of_relative_gradients(extractedImage)
-    sharpEdgesIndices = detect_sharp_edges_indices(relativeGradientsImage, sparsityPercent)
-    pixelInterests = calculate_pixel_interests(relativeGradientsImage, sharpEdgesIndices)
+    xSharpLocation, ySharpLocation = detect_sharp_edges_indices(relativeGradientsImage, sparsityPercent)
+    pixelInterests = calculate_pixel_interests(relativeGradientsImage, xSharpLocation, ySharpLocation)
 
     if max(pixelInterests) == 0:
         raise RuntimeError("Useless Image. No edges present")
 
     estDwellTime = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
 
-    return np.array([sharpEdgesIndices, pixelInterests, estDwellTime])
+    return np.array([xSharpLocation, ySharpLocation, pixelInterests, estDwellTime])
 
 
 def generate_sparse_image(imageObject, sparsityPercent, availableDwellTimes):

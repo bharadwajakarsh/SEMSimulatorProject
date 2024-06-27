@@ -39,7 +39,7 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
     if scanType == "ascending":
         xImportantPixels = sparseFeatures[0, :].astype(int)
         yImportantPixels = sparseFeatures[1, :].astype(int)
-        sortedIntensities = np.argsort(sparseFeatures[1, :])
+        sortedIntensities = np.argsort(sparseFeatures[2, :])
         ycoords = xImportantPixels[sortedIntensities]
         xcoords = yImportantPixels[sortedIntensities]
         return ycoords, xcoords
@@ -86,7 +86,7 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes,
             ycoords = groupedPixelLocations[eachUniqueDwellTime][:, 1]
             xcoords = groupedPixelLocations[eachUniqueDwellTime][:, 0]
             plt.figure(figsize=(20, 20))
-            plt.title("Path for scan number {i}]")
+            plt.title(f"Path for scan number {i+1}")
             plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
             plt.plot(ycoords[:1000], xcoords[:1000], color='white', linewidth=1)
             plt.show()

@@ -165,7 +165,7 @@ firstTestImage = imageSubset[0]
 secondTestImage = imageSubset[-1]
 
 display_stitched_image(firstTestImage, secondTestImage, 15)
-display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
+display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]), "ascending")
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)
 

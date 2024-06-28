@@ -39,9 +39,10 @@ def calculate_pixel_interests(relativeGradientsImage, sharpEdgeIndices):
 
 
 def calculate_pixelwise_dtime(pixelInterests, availableDwellTimes):
+    normalizedPixelInterests = (pixelInterests - np.min(pixelInterests))/(np.max(pixelInterests)-np.min(pixelInterests))
     maxDwellTime = max(availableDwellTimes)
     minDwellTime = min(availableDwellTimes)
-    dwellTimes = minDwellTime + pixelInterests * (maxDwellTime - minDwellTime)
+    dwellTimes = minDwellTime + normalizedPixelInterests * (maxDwellTime - minDwellTime)
     return np.asarray([min(availableDwellTimes, key=lambda x: abs(x - dtime))for dtime in dwellTimes])
 
 

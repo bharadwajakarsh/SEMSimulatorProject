@@ -8,7 +8,7 @@ class SparseImage:
 
 
 def compute_sample_size(imageShape, sparsityPercent):
-    return int(imageShape[0]*imageShape[1] * sparsityPercent / 100)
+    return int(imageShape[0] * imageShape[1] * sparsityPercent / 100)
 
 
 def compute_image_of_relative_gradients(image):
@@ -18,7 +18,7 @@ def compute_image_of_relative_gradients(image):
     maxGradient = np.max(relativeGradientsImage)
 
     if maxGradient != 0.0:
-        return relativeGradientsImage/maxGradient
+        return relativeGradientsImage / maxGradient
 
     return relativeGradientsImage
 
@@ -39,11 +39,12 @@ def calculate_pixel_interests(relativeGradientsImage, sharpEdgeIndices):
 
 
 def calculate_pixelwise_dtime(pixelInterests, availableDwellTimes):
-    normalizedPixelInterests = (pixelInterests - np.min(pixelInterests))/(np.max(pixelInterests)-np.min(pixelInterests))
+    normalizedPixelInterests = (pixelInterests - np.min(pixelInterests)) / (
+                np.max(pixelInterests) - np.min(pixelInterests))
     maxDwellTime = max(availableDwellTimes)
     minDwellTime = min(availableDwellTimes)
     dwellTimes = minDwellTime + normalizedPixelInterests * (maxDwellTime - minDwellTime)
-    return np.asarray([min(availableDwellTimes, key=lambda x: abs(x - dtime))for dtime in dwellTimes])
+    return np.asarray([min(availableDwellTimes, key=lambda x: abs(x - dtime)) for dtime in dwellTimes])
 
 
 def extract_sparse_features(extractedImage, sparsityPercent, availableDwellTimes):

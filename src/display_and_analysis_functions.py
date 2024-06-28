@@ -25,6 +25,8 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         raise TypeError("First image should be of SEM Object type")
     if sparsityPercent < 0 or sparsityPercent > 100:
         raise ValueError("illegal sparsity percentage")
+    if not all(isinstance(dwellTime, int) for dwellTime in availableDwellTimes) or min(availableDwellTimes) < 0:
+        raise ValueError("illegal dwell-time")
     if min(availableDwellTimes) < 0:
         raise ValueError("illegal dwell-time")
 
@@ -35,20 +37,20 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
     groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
 
     if scanType == "ascending":
-        xImportantPixels = sparseFeatures[0, :].astype(int)
-        yImportantPixels = sparseFeatures[1, :].astype(int)
-        sortedIntensities = np.argsort(sparseFeatures[2, :])
-        ycoords = yImportantPixels[sortedIntensities]
-        xcoords = xImportantPixels[sortedIntensities]
+        impPixelCoords = sparseFeatures[0, :].astype(int)
+        sortedIntensities = np.argsort(sparseFeatures[1, :])
+        sortedPixelCoords = impPixelCoords[sortedIntensities]
+        ycoords = sortedPixelCoords // imageSize
+        xcoords = sortedPixelCoords % imageSize
         return ycoords, xcoords
 
     elif scanType == "ascending plus z":
         groupedPixelLocations = {}
         for eachUniqueDwellTime in groupedSparseFeatures:
-            xImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
-            yImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][1, :]).astype(int)
-
-            combinedIndices = np.array(list(zip(yImportantPixels, xImportantPixels)))
+            impPixelCoords = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
+            ycoords = impPixelCoords // imageSize
+            xcoords = impPixelCoords % imageSize
+            combinedIndices = np.array(list(zip(ycoords, xcoords)))
             sortedPixelCoords = np.array(sorted(combinedIndices, key=lambda x: (x[0], x[1])))
             groupedPixelLocations[eachUniqueDwellTime] = sortedPixelCoords
 
@@ -57,9 +59,10 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
     elif scanType == "ascending plus raster":
         groupedPixelLocations = {}
         for eachUniqueDwellTime in groupedSparseFeatures:
-            xImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
-            yImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][1, :]).astype(int)
-            combinedIndices = np.array(list(zip(yImportantPixels, xImportantPixels)))
+            impPixelCoords = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
+            ycoords = impPixelCoords // imageSize
+            xcoords = impPixelCoords % imageSize
+            combinedIndices = np.array(list(zip(ycoords, xcoords)))
             sortedPixelCoords = combinedIndices[np.lexsort((combinedIndices[:, 1], combinedIndices[:, 0]))]
             groupedPixelLocations[eachUniqueDwellTime] = sortedPixelCoords
 
@@ -81,10 +84,10 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes,
     elif scanType == "ascending plus z" or "ascending plus raster":
         groupedPixelLocations = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
         for i, eachUniqueDwellTime in enumerate(groupedPixelLocations):
-            ycoords = groupedPixelLocations[eachUniqueDwellTime][:, 1]
-            xcoords = groupedPixelLocations[eachUniqueDwellTime][:, 0]
+            ycoords = groupedPixelLocations[eachUniqueDwellTime][:, 0]
+            xcoords = groupedPixelLocations[eachUniqueDwellTime][:, 1]
             plt.figure(figsize=(20, 20))
-            plt.title(f"Path for scan number {i+1}")
+            plt.title("Path for scan number {i}]")
             plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
             plt.plot(ycoords[:1000], xcoords[:1000], color='white', linewidth=1)
             plt.show()
@@ -110,10 +113,7 @@ def display_mask(sparseImageObject: SparseImage, originalImageObject: SEMImage):
         raise TypeError("Input should be a 'SEM Image' object")
 
     imageToSee = np.zeros(originalImageObject.extractedImage.size)
-    xPixelLocations = sparseImageObject.sparseFeatures[0, :].astype(int)
-    yPixelLocations = sparseImageObject.sparseFeatures[1, :].astype(int)
-
-    imageToSee[yPixelLocations, xPixelLocations] = sparseImageObject.sparseFeatures[2, :]
+    imageToSee[sparseImageObject.sparseFeatures[0, :].astype(int)] = sparseImageObject.sparseFeatures[1, :]
     imageToSee = np.reshape(imageToSee, originalImageObject.extractedImage.shape)
 
     plt.figure()
@@ -144,13 +144,14 @@ def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent)
     plt.show()
 
 
-"""
-Execution
-
 def calculate_psnr(originalImage, hybridImage):
     if np.linalg.norm(originalImage - hybridImage) == 0:
         return float('inf')
     return -10 * np.log10(np.mean((originalImage - hybridImage) ** 2))
+
+
+"""
+Execution
 
 from src.initialize_database import read_sem_images
 from src.generate_new_images import generate_new_images
@@ -163,12 +164,11 @@ imageSubset = sorted(imageSubset + newImageSet, key=lambda eachImage: eachImage.
 firstTestImage = imageSubset[0]
 secondTestImage = imageSubset[-1]
 
-display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]), "ascending")
-
-display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]), "ascending")
+display_stitched_image(firstTestImage, secondTestImage, 15)
+display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)
-display_stitched_image(firstTestImage, secondTestImage, 15)
+
 display_stitched_image(firstTestImage, secondTestImage, 15, 'gaussian', 3)
 plot_dwell_times_histogram(sparseImageObject.sparseFeatures[2, :], 100)
 print(compare_stitching_methods(firstTestImage, secondTestImage, 15, 3))

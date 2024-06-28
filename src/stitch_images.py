@@ -1,13 +1,7 @@
 import numpy as np
 
 from src.initialize_database import SEMImage
-from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edges_indices,
-                                  calculate_pixel_interests)
-
-
-def get_numpy_gaussian_kernel(kernelSize, sigma):
-    kernel = np.exp(-(np.arange(kernelSize) - kernelSize // 2) ** 2 / (2 * sigma ** 2))
-    return kernel / np.sum(kernel)
+from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edge_locations)
 
 
 def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
@@ -24,15 +18,15 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
     highDTImage = highDTImageObject.extractedImage
 
     gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
-    impPixelCoords = detect_sharp_edges_indices(gradientsLowDTImage, sparsityPercent)
+    xSharpLocation, ySharpLocation = detect_sharp_edge_locations(gradientsLowDTImage, sparsityPercent)
 
-    stitchedImageFlat = stitchedImage.ravel()
-    highDTImageFlat = highDTImage.ravel()
-
-    if np.any(impPixelCoords >= stitchedImageFlat.size):
+    if np.any(ySharpLocation >= stitchedImage.shape[0]):
         raise ValueError("Important pixel coordinates out of bounds")
 
-    stitchedImageFlat[impPixelCoords] = highDTImageFlat[impPixelCoords]
+    if np.any(xSharpLocation >= stitchedImage.shape[1]):
+        raise ValueError("Important pixel coordinates out of bounds")
 
-    return stitchedImageFlat.reshape(lowDTImageObject.extractedImage.shape)
+    stitchedImage[ySharpLocation, xSharpLocation] = highDTImage[ySharpLocation, xSharpLocation]
+
+    return stitchedImage
 

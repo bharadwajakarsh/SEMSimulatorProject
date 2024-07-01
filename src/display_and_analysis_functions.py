@@ -25,8 +25,6 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         raise TypeError("First image should be of SEM Object type")
     if sparsityPercent < 0 or sparsityPercent > 100:
         raise ValueError("illegal sparsity percentage")
-    if not all(isinstance(dwellTime, int) for dwellTime in availableDwellTimes) or min(availableDwellTimes) < 0:
-        raise ValueError("illegal dwell-time")
     if min(availableDwellTimes) < 0:
         raise ValueError("illegal dwell-time")
 
@@ -165,7 +163,7 @@ firstTestImage = imageSubset[0]
 secondTestImage = imageSubset[-1]
 
 display_stitched_image(firstTestImage, secondTestImage, 15)
-display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
+display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]), "ascending")
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)
 

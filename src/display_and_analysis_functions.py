@@ -32,7 +32,6 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
     imageSize = lowDTimageObject.imageSize
 
     sparseFeatures = extract_sparse_features(ourImage, sparsityPercent, availableDwellTimes)
-    groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
 
     if scanType == "ascending":
         impPixelCoords = sparseFeatures[0, :].astype(int)
@@ -43,6 +42,7 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         return ycoords, xcoords
 
     elif scanType == "ascending plus z":
+        groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
         groupedPixelLocations = {}
         for eachUniqueDwellTime in groupedSparseFeatures:
             impPixelCoords = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
@@ -55,6 +55,7 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         return groupedPixelLocations
 
     elif scanType == "ascending plus raster":
+        groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
         groupedPixelLocations = {}
         for eachUniqueDwellTime in groupedSparseFeatures:
             impPixelCoords = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
@@ -71,12 +72,13 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
 
 
 def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType):
+    imageSize = lowDTimageObject.imageSize
     if scanType == "ascending":
         ycoords, xcoords = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
         plt.figure(figsize=(20, 20))
         plt.title("Path for scanning first 1000 pixels")
         plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
-        plt.plot(ycoords[:1000], xcoords[:1000], color='white', linewidth=1)
+        plt.plot(xcoords[:1000], ycoords[:1000], color='white', linewidth=1)
         plt.show()
 
     elif scanType == "ascending plus z" or "ascending plus raster":
@@ -85,9 +87,9 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes,
             ycoords = groupedPixelLocations[eachUniqueDwellTime][:, 0]
             xcoords = groupedPixelLocations[eachUniqueDwellTime][:, 1]
             plt.figure(figsize=(20, 20))
-            plt.title("Path for scan number {i}]")
+            plt.title(f"Path for scan number {i}. Dwell-time: {eachUniqueDwellTime}us")
             plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
-            plt.plot(ycoords[:1000], xcoords[:1000], color='white', linewidth=1)
+            plt.plot(xcoords[:1000], ycoords[:1000], color='white', linewidth=1)
             plt.show()
 
 
@@ -147,26 +149,24 @@ def calculate_psnr(originalImage, hybridImage):
         return float('inf')
     return -10 * np.log10(np.mean((originalImage - hybridImage) ** 2))
 
-
-"""
-Execution
-
 from src.initialize_database import read_sem_images
 from src.generate_new_images import generate_new_images
 
-path = "D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024"
+path = "D:/Akarsh/Adaptive Scanning/Data/CSV files"
 availableImages = read_sem_images(path)
-imageSubset = availableImages[3:9]
+imageSubset = availableImages[:8]
 newImageSet = generate_new_images(imageSubset, 4, 10)
 imageSubset = sorted(imageSubset + newImageSet, key=lambda eachImage: eachImage.dwellTime)
 firstTestImage = imageSubset[0]
 secondTestImage = imageSubset[-1]
 
+display_scan_pattern(firstTestImage, 15, np.array([50, 100, 200, 300]), "ascending")
+
+"""
+Execution
 display_stitched_image(firstTestImage, secondTestImage, 15)
-display_scan_pattern(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]), "ascending")
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)
-
 display_stitched_image(firstTestImage, secondTestImage, 15, 'gaussian', 3)
 plot_dwell_times_histogram(sparseImageObject.sparseFeatures[2, :], 100)
 print(compare_stitching_methods(firstTestImage, secondTestImage, 15, 3))

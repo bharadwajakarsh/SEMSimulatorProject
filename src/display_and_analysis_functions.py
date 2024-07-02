@@ -152,8 +152,10 @@ def calculate_psnr(originalImage, hybridImage):
 
 """
 Execution
+
 from src.initialize_database import read_sem_images
 from src.generate_new_images import generate_new_images
+from src.sparse_image_gen import generate_sparse_image
 
 path = "D:/Akarsh/Adaptive Scanning/Data/CSV files"
 availableImages = read_sem_images(path)
@@ -164,7 +166,6 @@ firstTestImage = imageSubset[0]
 secondTestImage = imageSubset[-1]
 
 display_scan_pattern(firstTestImage, 15, np.array([50, 100, 200, 300]), "ascending")
-
 display_stitched_image(firstTestImage, secondTestImage, 15)
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)

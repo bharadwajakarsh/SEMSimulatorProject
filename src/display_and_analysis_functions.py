@@ -117,9 +117,10 @@ def display_mask(sparseImageObject: SparseImage, originalImageObject: SEMImage):
     if not isinstance(originalImageObject, SEMImage):
         raise TypeError("Input should be a 'SEM Image' object")
 
-    imageToSee = np.zeros(originalImageObject.extractedImage.size)
-    imageToSee[sparseImageObject.sparseFeatures[0, :].astype(int)] = sparseImageObject.sparseFeatures[1, :]
-    imageToSee = np.reshape(imageToSee, originalImageObject.extractedImage.shape)
+    imageToSee = np.zeros(originalImageObject.extractedImage.shape)
+    yMaskCoords = sparseImageObject.sparseFeatures[0, :].astype(int)
+    xMaskCoords = sparseImageObject.sparseFeatures[1, :].astype(int)
+    imageToSee[yMaskCoords, xMaskCoords] = sparseImageObject.sparseFeatures[2, :]
 
     plt.figure()
     plt.title('Original image')
@@ -154,25 +155,27 @@ def calculate_psnr(originalImage, hybridImage):
         return float('inf')
     return -10 * np.log10(np.mean((originalImage - hybridImage) ** 2))
 
-
-"""
-Execution
 from src.initialize_database import read_sem_images
 from src.generate_new_images import generate_new_images
 from src.sparse_image_gen import generate_sparse_image
 
 path = "D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024"
 availableImages = read_sem_images(path)
-imageSubset = availableImages[3:9]
+imageSubset = availableImages[9:15]
 newImageSet = generate_new_images(imageSubset, 4, 10)
 imageSubset = sorted(imageSubset + newImageSet, key=lambda eachImage: eachImage.dwellTime)
 firstTestImage = imageSubset[0]
 secondTestImage = imageSubset[-1]
-display_scan_pattern(firstTestImage, 15, np.array([50, 100, 200, 300]), "descending")
-display_stitched_image(firstTestImage, secondTestImage, 15)
+
+
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)
-display_stitched_image(firstTestImage, secondTestImage, 15, 'gaussian', 3)
+
+"""
+Execution
+
+display_scan_pattern(firstTestImage, 15, np.array([50, 100, 200, 300]), "descending")
+display_stitched_image(firstTestImage, secondTestImage, 15)
 plot_dwell_times_histogram(sparseImageObject.sparseFeatures[2, :], 100)
 print(compare_stitching_methods(firstTestImage, secondTestImage, 15, 3))
 

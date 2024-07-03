@@ -34,21 +34,28 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
     sparseFeatures = extract_sparse_features(ourImage, sparsityPercent, availableDwellTimes)
 
     if scanType == "ascending":
-        impPixelCoords = sparseFeatures[0, :].astype(int)
-        sortedIntensities = np.argsort(sparseFeatures[1, :])
-        sortedPixelCoords = impPixelCoords[sortedIntensities]
-        ycoords = sortedPixelCoords // imageSize
-        xcoords = sortedPixelCoords % imageSize
+        yImpPixelCoords = sparseFeatures[0, :].astype(int)
+        xImpPixelCoords = sparseFeatures[1, :].astype(int)
+        sortedIntensities = np.argsort(sparseFeatures[2, :])
+        ycoords = yImpPixelCoords[sortedIntensities]
+        xcoords = xImpPixelCoords[sortedIntensities]
         return ycoords, xcoords
+
+    elif scanType == "descending":
+        yImpPixelCoords = sparseFeatures[0, :].astype(int)
+        xImpPixelCoords = sparseFeatures[1, :].astype(int)
+        sortedIntensities = np.argsort(sparseFeatures[2, :])
+        ycoords = yImpPixelCoords[sortedIntensities]
+        xcoords = xImpPixelCoords[sortedIntensities]
+        return ycoords[::-1], xcoords[::-1]
 
     elif scanType == "ascending plus z":
         groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
         groupedPixelLocations = {}
         for eachUniqueDwellTime in groupedSparseFeatures:
-            impPixelCoords = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
-            ycoords = impPixelCoords // imageSize
-            xcoords = impPixelCoords % imageSize
-            combinedIndices = np.array(list(zip(ycoords, xcoords)))
+            xImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
+            yImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][1, :]).astype(int)
+            combinedIndices = np.array(list(zip(yImportantPixels, xImportantPixels)))
             sortedPixelCoords = np.array(sorted(combinedIndices, key=lambda x: (x[0], x[1])))
             groupedPixelLocations[eachUniqueDwellTime] = sortedPixelCoords
 
@@ -58,10 +65,9 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
         groupedPixelLocations = {}
         for eachUniqueDwellTime in groupedSparseFeatures:
-            impPixelCoords = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
-            ycoords = impPixelCoords // imageSize
-            xcoords = impPixelCoords % imageSize
-            combinedIndices = np.array(list(zip(ycoords, xcoords)))
+            xImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
+            yImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][1, :]).astype(int)
+            combinedIndices = np.array(list(zip(yImportantPixels, xImportantPixels)))
             sortedPixelCoords = combinedIndices[np.lexsort((combinedIndices[:, 1], combinedIndices[:, 0]))]
             groupedPixelLocations[eachUniqueDwellTime] = sortedPixelCoords
 
@@ -72,8 +78,7 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
 
 
 def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType):
-    imageSize = lowDTimageObject.imageSize
-    if scanType == "ascending":
+    if scanType == "ascending" or scanType == "descending":
         ycoords, xcoords = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
         plt.figure(figsize=(20, 20))
         plt.title("Path for scanning first 1000 pixels")
@@ -81,7 +86,7 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes,
         plt.plot(xcoords[:1000], ycoords[:1000], color='white', linewidth=1)
         plt.show()
 
-    elif scanType == "ascending plus z" or "ascending plus raster":
+    elif scanType == "ascending plus z" or scanType == "ascending plus raster":
         groupedPixelLocations = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
         for i, eachUniqueDwellTime in enumerate(groupedPixelLocations):
             ycoords = groupedPixelLocations[eachUniqueDwellTime][:, 0]
@@ -152,20 +157,18 @@ def calculate_psnr(originalImage, hybridImage):
 
 """
 Execution
-
 from src.initialize_database import read_sem_images
 from src.generate_new_images import generate_new_images
 from src.sparse_image_gen import generate_sparse_image
 
-path = "D:/Akarsh/Adaptive Scanning/Data/CSV files"
+path = "D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024"
 availableImages = read_sem_images(path)
-imageSubset = availableImages[:8]
+imageSubset = availableImages[3:9]
 newImageSet = generate_new_images(imageSubset, 4, 10)
 imageSubset = sorted(imageSubset + newImageSet, key=lambda eachImage: eachImage.dwellTime)
 firstTestImage = imageSubset[0]
 secondTestImage = imageSubset[-1]
-
-display_scan_pattern(firstTestImage, 15, np.array([50, 100, 200, 300]), "ascending")
+display_scan_pattern(firstTestImage, 15, np.array([50, 100, 200, 300]), "descending")
 display_stitched_image(firstTestImage, secondTestImage, 15)
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)

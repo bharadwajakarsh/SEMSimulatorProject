@@ -1,7 +1,7 @@
 import numpy as np
 
 from src.initialize_database import SEMImage
-from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edges_indices,
+from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edge_locations,
                                   calculate_pixel_interests)
 
 
@@ -19,14 +19,13 @@ def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):
     highDTImage = highDTImageObject.extractedImage
 
     gradientsLowDTImage = compute_image_of_relative_gradients(stitchedImage)
-    impPixelCoords = detect_sharp_edges_indices(gradientsLowDTImage, sparsityPercent)
+    yEdgeCoordinates, xEdgeCoordinates = detect_sharp_edge_locations(gradientsLowDTImage, sparsityPercent)
 
-    stitchedImageFlat = stitchedImage.ravel()
-    highDTImageFlat = highDTImage.ravel()
-
-    if np.any(impPixelCoords >= stitchedImageFlat.size):
+    if np.any(yEdgeCoordinates >= lowDTImageObject.imageSize):
+        raise ValueError("Important pixel coordinates out of bounds")
+    if np.any(xEdgeCoordinates >= lowDTImageObject.imageSize):
         raise ValueError("Important pixel coordinates out of bounds")
 
-    stitchedImageFlat[impPixelCoords] = highDTImageFlat[impPixelCoords]
+    stitchedImage[yEdgeCoordinates, xEdgeCoordinates] = highDTImage[yEdgeCoordinates, xEdgeCoordinates]
 
-    return stitchedImageFlat.reshape(lowDTImageObject.extractedImage.shape)
+    return stitchedImage

@@ -155,6 +155,9 @@ def calculate_psnr(originalImage, hybridImage):
         return float('inf')
     return -10 * np.log10(np.mean((originalImage - hybridImage) ** 2))
 
+
+"""
+Execution
 from src.initialize_database import read_sem_images
 from src.generate_new_images import generate_new_images
 from src.sparse_image_gen import generate_sparse_image
@@ -166,14 +169,8 @@ newImageSet = generate_new_images(imageSubset, 4, 10)
 imageSubset = sorted(imageSubset + newImageSet, key=lambda eachImage: eachImage.dwellTime)
 firstTestImage = imageSubset[0]
 secondTestImage = imageSubset[-1]
-
-
 sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
 display_mask(sparseImageObject, firstTestImage)
-
-"""
-Execution
-
 display_scan_pattern(firstTestImage, 15, np.array([50, 100, 200, 300]), "descending")
 display_stitched_image(firstTestImage, secondTestImage, 15)
 plot_dwell_times_histogram(sparseImageObject.sparseFeatures[2, :], 100)

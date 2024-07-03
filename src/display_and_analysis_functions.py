@@ -29,8 +29,6 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         raise ValueError("illegal dwell-time")
 
     ourImage = lowDTimageObject.extractedImage
-    imageSize = lowDTimageObject.imageSize
-
     sparseFeatures = extract_sparse_features(ourImage, sparsityPercent, availableDwellTimes)
 
     if scanType == "ascending":

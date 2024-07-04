@@ -47,18 +47,6 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         xcoords = xImpPixelCoords[sortedIntensities]
         return ycoords[::-1], xcoords[::-1]
 
-    elif scanType == "ascending plus z":
-        groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
-        groupedPixelLocations = {}
-        for eachUniqueDwellTime in groupedSparseFeatures:
-            xImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][0, :]).astype(int)
-            yImportantPixels = np.array(groupedSparseFeatures[eachUniqueDwellTime][1, :]).astype(int)
-            combinedIndices = np.array(list(zip(yImportantPixels, xImportantPixels)))
-            sortedPixelCoords = np.array(sorted(combinedIndices, key=lambda x: (x[0], x[1])))
-            groupedPixelLocations[eachUniqueDwellTime] = sortedPixelCoords
-
-        return groupedPixelLocations
-
     elif scanType == "ascending plus raster":
         groupedSparseFeatures = group_features_by_dwell_times(sparseFeatures)
         groupedPixelLocations = {}
@@ -84,7 +72,7 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes,
         plt.plot(xcoords[:1000], ycoords[:1000], color='white', linewidth=1)
         plt.show()
 
-    elif scanType == "ascending plus z" or scanType == "ascending plus raster":
+    elif scanType == "ascending plus raster":
         groupedPixelLocations = generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType)
         for i, eachUniqueDwellTime in enumerate(groupedPixelLocations):
             ycoords = groupedPixelLocations[eachUniqueDwellTime][:, 0]
@@ -94,6 +82,8 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes,
             plt.imshow(lowDTimageObject.extractedImage, cmap='grey')
             plt.plot(xcoords[:1000], ycoords[:1000], color='white', linewidth=1)
             plt.show()
+    else:
+        raise ValueError("Invalid scan type")
 
 
 def plot_dwell_times_histogram(dwellTimesFeature, bins: int):

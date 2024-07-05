@@ -1,5 +1,5 @@
 import numpy as np
-from skimage import io, filters
+from skimage import filters
 
 
 class SparseImage:

@@ -23,10 +23,10 @@ class TestSparseImageGen(unittest.TestCase):
         image[2, 2] = 1.0
         image[2, 3] = 1.0
         gradients = compute_image_of_relative_gradients(image)
-        expectedGradient = np.asarray(
-            [[1, np.sqrt(2) / 4, 0, 0, 0], [np.sqrt(2) / 4, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0],
-             [0, np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, 1 / np.sqrt(2)],
-             [0, 0, np.sqrt(2) / 4, np.sqrt(2) / 4, 0], [0, 0, 0, 0, 0]])
+        expectedGradient = np.asarray([[1, np.sqrt(5) / 3, 0, 0, 0],
+                                       [np.sqrt(5) / 3, 0, np.sqrt(5) / 3, np.sqrt(5) / 3, 1 / 3],
+                                       [0, np.sqrt(2) / 3, np.sqrt(2) / 3, np.sqrt(2) / 3, np.sqrt(2) / 3],
+                                       [0, 1 / 3, np.sqrt(5) / 3, np.sqrt(5) / 3, 1 / 3], [0, 0, 0, 0, 0]])
         self.assertAlmostEqual(0, np.linalg.norm(gradients - expectedGradient))
 
     def test_detect_sharp_edges(self):
@@ -53,7 +53,7 @@ class TestSparseImageGen(unittest.TestCase):
         ySharpEdgeIndices = np.asarray([1, 1, 0, 2, 0])
         xSharpEdgeIndices = np.asarray([2, 0, 1, 4, 0])
         highInterestAreas = calculate_pixel_interests(imageGradients, ySharpEdgeIndices, xSharpEdgeIndices)
-        expectedHighAreas = np.asarray([np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, 1/np.sqrt(2), 1])
+        expectedHighAreas = np.asarray([np.sqrt(2) / 4, np.sqrt(2) / 4, np.sqrt(2) / 4, 1 / np.sqrt(2), 1])
         self.assertEqual(0, np.linalg.norm(highInterestAreas - expectedHighAreas))
 
     def test_pixelwise_dtime(self):

@@ -1,4 +1,5 @@
 import numpy as np
+from skimage import io, filters
 
 
 class SparseImage:
@@ -12,9 +13,7 @@ def compute_sample_size(imageShape, sparsityPercent):
 
 
 def compute_image_of_relative_gradients(image):
-    gradients_x = np.gradient(image, axis=1)
-    gradients_y = np.gradient(image, axis=0)
-    relativeGradientsImage = np.sqrt(gradients_x ** 2 + gradients_y ** 2)
+    relativeGradientsImage = np.asarray(filters.sobel(image))
     maxGradient = np.max(relativeGradientsImage)
 
     if maxGradient != 0.0:
@@ -24,10 +23,9 @@ def compute_image_of_relative_gradients(image):
 
 
 def detect_sharp_edge_locations(relativeGradientsImage, sparsityPercent):
-    sampleSize = compute_sample_size(relativeGradientsImage.shape, sparsityPercent)
-    relativeGradientsFlat = relativeGradientsImage.flatten()
-    sharpIndices = np.argsort(relativeGradientsFlat)[-sampleSize:]
-    return sharpIndices // relativeGradientsImage.shape[0], sharpIndices % relativeGradientsImage.shape[1]
+    threshold = np.percentile(relativeGradientsImage, 100 - sparsityPercent)
+    MaskOfSharpPixels = relativeGradientsImage >= threshold
+    return np.where(MaskOfSharpPixels)
 
 
 def calculate_pixel_interests(relativeGradientsImage, ySharpIndices, xSharpIndices):
@@ -40,7 +38,7 @@ def calculate_pixel_interests(relativeGradientsImage, ySharpIndices, xSharpIndic
 
 def calculate_pixelwise_dtime(pixelInterests, availableDwellTimes):
     normalizedPixelInterests = (pixelInterests - np.min(pixelInterests)) / (
-                np.max(pixelInterests) - np.min(pixelInterests))
+            np.max(pixelInterests) - np.min(pixelInterests))
     maxDwellTime = max(availableDwellTimes)
     minDwellTime = min(availableDwellTimes)
     dwellTimes = minDwellTime + normalizedPixelInterests * (maxDwellTime - minDwellTime)

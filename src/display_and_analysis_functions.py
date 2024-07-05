@@ -141,7 +141,7 @@ def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent)
 def calculate_psnr(originalImage, hybridImage):
     if np.linalg.norm(originalImage - hybridImage) == 0:
         return float('inf')
-    return -20 * np.log10(np.mean((originalImage/np.max(originalImage) - hybridImage/np.max(hybridImage)) ** 2))
+    return -20 * np.log10(np.mean((originalImage / np.max(originalImage) - hybridImage / np.max(hybridImage)) ** 2))
 
 
 """
@@ -163,5 +163,5 @@ display_scan_pattern(firstTestImage, 15, np.array([50, 100, 200, 300]), "descend
 display_stitched_image(firstTestImage, secondTestImage, 15)
 plot_dwell_times_histogram(sparseImageObject.sparseFeatures[2, :], 100)
 print(compare_stitching_methods(firstTestImage, secondTestImage, 15, 3))
-
+print(calculate_psnr(firstTestImage.extractedImage, stitch_images(firstTestImage, secondTestImage, 15)))
 """

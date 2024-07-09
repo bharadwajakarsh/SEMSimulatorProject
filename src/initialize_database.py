@@ -14,8 +14,9 @@ class SEMImage:
 
 
 class SIMSImage:
-    def __init__(self, imageSize, spectrometryImages):
+    def __init__(self, imageSize, dwellTime, spectrometryImages):
         self.imageSize = imageSize
+        self.dwellTime = dwellTime
         self.spectrometryImages = spectrometryImages
 
 
@@ -53,18 +54,21 @@ def read_sem_images(folderPath):
 
 
 def read_sims_images(SIMSFolderPath):
+    imageSize = 0
     imageSet = []
     for eachFolder in os.listdir(SIMSFolderPath):
         sampleFolder = os.path.join(SIMSFolderPath, eachFolder)
+        dwellTime = 0
         spectrometryImages = []
-        imageSize = 0
         if os.path.isdir(sampleFolder):
-            tiffFiles = glob.glob(os.path.join(sampleFolder, '*.tiff'))
-            for eachImagePath in tiffFiles:
-                imageOfOneMass = np.array(Image.open(eachImagePath))
-                imageSize = len(imageOfOneMass)
-                spectrometryImages.append(imageOfOneMass)
-        image = SIMSImage(imageSize, spectrometryImages)
+            csvFiles = glob.glob(os.path.join(sampleFolder, '*.csv'))
+            for eachImagePath in csvFiles:
+                imageDataOfOneMass = pd.read_csv(eachImagePath, delimiter=';', dtype=str, encoding='ISO-8859-1')
+                dwellTime = float(imageDataOfOneMass.iloc[1, 0])
+                imageSize = int(imageDataOfOneMass.iloc[1, 1])
+                spectrometryImage = np.asarray(imageDataOfOneMass.iloc[21:, :imageSize].astype(float)).astype(np.uint16)
+                spectrometryImages.append(spectrometryImage)
+        image = SIMSImage(imageSize, dwellTime, spectrometryImages)
         imageSet.append(image)
 
     return imageSet

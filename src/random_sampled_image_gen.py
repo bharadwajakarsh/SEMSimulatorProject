@@ -112,3 +112,17 @@ def nn_interpolation_for_sparse_image(randomSparseImageObject, numberNeighbours)
                 interpolatedImage[i, j] = randomPixelIntensities[knownPixelIndices[0]]
 
     return interpolatedImage
+
+
+'''
+Execution
+
+path = "D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024"
+availableSEImages = read_sem_images(path)
+imageOne = availableSEImages[3]
+randomSparseImageTwo = generate_random_sparse_image(imageOne, 50)
+interpolatedImage = nn_interpolation_for_sparse_image(randomSparseImageTwo, 3)
+plt.figure()
+plt.imshow(interpolatedImage, cmap = 'grey')
+plt.show()
+'''

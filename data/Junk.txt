@@ -1,0 +1,45 @@
+def stitch_with_gaussian_blur(lowDTImageObject, highDTImageObject, samplePercent, kernelSize):
+
+    stitchedImage = np.copy(lowDTImageObject.extractedImage)
+    highDTImage = np.copy(highDTImageObject.extractedImage)
+
+    stitchedImageUn = np.ravel(stitchedImage)
+    highDTImageUn = np.ravel(highDTImage)
+
+    sparseImageObject = generate_sparse_image(lowDTImageObject, samplePercent)
+    impPixelCoords = sparseImageObject.sparseFeatures[0, :].astype(int)
+
+    kernelOneD = cv2.getGaussianKernel(kernelSize[0], 0)
+    kernelTwoD = np.outer(kernelOneD, kernelOneD.T)
+
+    maskToSee = np.zeros(stitchedImage.size)
+    maskToSee[impPixelCoords] = sparseImageObject.sparseFeatures[1, :]
+    maskToSee = np.reshape(maskToSee, (lowDTImageObject.extractedImage.shape))
+
+    blurdMask = np.convolve(np.ravel(maskToSee), np.ravel(kernelTwoD), mode='same').reshape(maskToSee.shape)
+
+    for i in range(len(blurdMask)):
+        for j in range(len(blurdMask)):
+            if blurdMask[i, j] != 0:
+                stitchedImage[i, j] = highDTImage[i, j]
+
+    return stitchedImage
+
+def calc_psnr(originalImage,hybridImage):
+    return -10*np.log10(np.mean((originalImage-hybridImage)**2))
+
+
+## Execusion
+
+stitchedImageGauss = stitch_with_gaussian_blur(newImageSet[5],highDTImage,samplePercent = 15,kernelSize = (3,3))
+
+plt.figure()
+plt.title('Stitching after bluring the mask')
+plt.imshow(stitchedImageGauss,cmap = 'grey')
+print('PSNR = ', calc_psnr(newImageSet[5].extractedImage/np.max(newImageSet[5].extractedImage),stitchedImageGauss/np.max(stitchedImageGauss)))
+plt.show()
+plt.figure()
+plt.title('Stitching without bluring the mask')
+plt.imshow(hybridImage,cmap = 'grey')
+print('PSNR = ', calc_psnr(newImageSet[5].extractedImage/np.max(newImageSet[5].extractedImage),hybridImage/np.max(stitchedImageGauss)))
+plt.show()

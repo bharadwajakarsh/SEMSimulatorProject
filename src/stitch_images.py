@@ -1,8 +1,7 @@
 import numpy as np
 
-from src.initialize_database import SEMImage
-from src.sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edge_locations,
-                                  calculate_pixel_interests)
+from initialize_database import SEMImage
+from sparse_image_gen import (compute_image_of_relative_gradients, detect_sharp_edge_locations)
 
 
 def stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent):

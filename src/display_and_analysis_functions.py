@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from src.sparse_image_gen import extract_sparse_features
-from src.sparse_image_gen import SparseImage
-from src.initialize_database import SEMImage
-from src.stitch_images import stitch_images
+from sparse_image_gen import extract_sparse_features
+from sparse_image_gen import SparseImage
+from initialize_database import SEMImage
+from stitch_images import stitch_images
 
 
 def group_features_by_dwell_times(sparseFeatures):
@@ -146,9 +146,9 @@ def calculate_psnr(originalImage, hybridImage):
 
 """
 Execution
-from src.initialize_database import read_sem_images
-from src.generate_new_images import generate_new_images
-from src.sparse_image_gen import generate_sparse_image
+from initialize_database import read_sem_images
+from generate_new_images import generate_new_images
+from sparse_image_gen import generate_sparse_image
 
 path = "D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024"
 availableImages = read_sem_images(path)

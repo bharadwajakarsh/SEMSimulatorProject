@@ -15,4 +15,4 @@ EXPOSE 80
 ENV NAME SEM_DEFAULT_ENV
 
 # Run app.py when the container launches
-CMD ["python", "app.py"]
+CMD ["python3", "display_and_analysis_functions.py"]

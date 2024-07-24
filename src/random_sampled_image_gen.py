@@ -50,8 +50,8 @@ def add_corners_to_sample_set(imageToSample):
 
 
 def generate_random_pixel_locations(imageSize, sparsityPercent):
-    sampleSize = int(imageSize * imageSize * sparsityPercent / 100)
-    randomPixelIndices = np.random.choice(imageSize, size=sampleSize, replace=False)
+    sampleSize = int(imageSize**2 * sparsityPercent / 100)
+    randomPixelIndices = np.random.choice(imageSize**2, size=sampleSize, replace=False)
     return randomPixelIndices
 
 

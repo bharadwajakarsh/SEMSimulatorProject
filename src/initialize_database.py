@@ -68,8 +68,9 @@ def read_sims_images(SIMSFolderPath):
                 imageSize = int(imageDataOfOneMass.iloc[1, 1])
                 spectrometryImage = np.asarray(imageDataOfOneMass.iloc[21:, :imageSize].astype(float)).astype(np.uint16)
                 spectrometryImages.append(spectrometryImage)
-        image = SIMSImage(imageSize, dwellTime, spectrometryImages)
-        imageSet.append(image)
+        if spectrometryImages:
+            image = SIMSImage(imageSize, dwellTime, spectrometryImages)
+            imageSet.append(image)
 
     return imageSet
 

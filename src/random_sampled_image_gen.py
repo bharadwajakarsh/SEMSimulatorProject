@@ -1,4 +1,5 @@
 import numpy as np
+import multiprocessing as mp
 from scipy.spatial import Voronoi, cKDTree
 
 
@@ -50,8 +51,8 @@ def add_corners_to_sample_set(imageToSample):
 
 
 def generate_random_pixel_locations(imageSize, sparsityPercent):
-    sampleSize = int(imageSize**2 * sparsityPercent / 100)
-    randomPixelIndices = np.random.choice(imageSize**2, size=sampleSize, replace=False)
+    sampleSize = int(imageSize ** 2 * sparsityPercent / 100)
+    randomPixelIndices = np.random.choice(imageSize ** 2, size=sampleSize, replace=False)
     return randomPixelIndices
 
 
@@ -65,7 +66,7 @@ def interpolate_pixel(x, y, points, vorObject, kDTree, numberNeighbours, randomP
     region = vorObject.regions[regionIndex]
 
     if -1 in region:
-        return np.nan
+        return 0
 
     vertices = vorObject.vertices[region]
     neighbourValues = []
@@ -83,6 +84,11 @@ def interpolate_pixel(x, y, points, vorObject, kDTree, numberNeighbours, randomP
     return np.dot(weights, neighbourValues)
 
 
+def process_pixel(args):
+    x, y, points, vorObject, kDTree, numberNeighbours, randomPixelIntensities = args
+    return x, y, interpolate_pixel(x, y, points, vorObject, kDTree, numberNeighbours, randomPixelIntensities)
+
+
 def nn_interpolation_for_sparse_image(randomSparseImageObject, numberNeighbours):
     randomSparseFeatures = randomSparseImageObject.randomSparseFeatures
     imageSize = randomSparseImageObject.imageSize
@@ -98,18 +104,21 @@ def nn_interpolation_for_sparse_image(randomSparseImageObject, numberNeighbours)
     kDTree = cKDTree(points)
 
     knownPixels = set(zip(xCoords, yCoords))
-    count = 0
+    pixelArguments = []
 
     for i in range(imageSize):
         for j in range(imageSize):
             if (j, i) not in knownPixels:
-                interpolatedImage[i, j] = interpolate_pixel(j, i, points, vorObject, kDTree, numberNeighbours,
-                                                            randomPixelIntensities)
-                count = count + 1
-                print(count)
+                pixelArguments.append((j, i, points, vorObject, kDTree, numberNeighbours, randomPixelIntensities))
             else:
                 knownPixelIndices = np.where((xCoords == j) & (yCoords == i))[0]
                 interpolatedImage[i, j] = randomPixelIntensities[knownPixelIndices[0]]
+
+    with mp.Pool(mp.cpu_count()) as pool:
+        results = pool.map(process_pixel, pixelArguments)
+
+    for i, j, pixelValue in results:
+        interpolatedImage[i, j] = pixelValue
 
     return interpolatedImage
 

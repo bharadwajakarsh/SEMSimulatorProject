@@ -70,8 +70,14 @@ def extract_sparse_features_sims(spectrometryImages, sparsityPercent, availableD
     for eachMassImage in spectrometryImages:
         sumImage = sumImage + eachMassImage
 
-    ySharpIndices, xSharpIndices = detect_sharp_edge_locations(sumImage, sparsityPercent)
-    pixelInterests = calculate_pixel_interests(sumImage, ySharpIndices, xSharpIndices)
+    sumImageNormalized = sumImage/np.max(sumImage)
+
+    ySharpIndices, xSharpIndices = detect_sharp_edge_locations(sumImageNormalized, sparsityPercent)
+    pixelInterests = calculate_pixel_interests(sumImageNormalized, ySharpIndices, xSharpIndices)
+
+    if max(pixelInterests) == 0:
+        raise RuntimeError("Useless Image")
+
     estDwellTime = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
 
     return np.array([ySharpIndices, xSharpIndices, pixelInterests, estDwellTime])

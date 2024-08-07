@@ -139,14 +139,16 @@ def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent,
     plt.show()
 
     if isinstance(lowDTImageObject, SEMImage):
-        stitchedImageObject = stitch_images_sem(lowDTImageObject, highDTImageObject, sparsityPercent, availableDwellTimes)
+        stitchedImageObject = stitch_images_sem(lowDTImageObject, highDTImageObject, sparsityPercent,
+                                                availableDwellTimes)
         plt.figure()
         plt.title("Normal stitching, dwell-times: {}".format([lowDTImageObject.dwellTime, highDTImageObject.dwellTime]))
         plt.imshow(stitchedImageObject.extractedImage, cmap='grey')
         plt.show()
 
     elif isinstance(lowDTImageObject, SIMSImage):
-        stitchedImageObject = stitch_images_sims(lowDTImageObject, highDTImageObject, sparsityPercent, availableDwellTimes)
+        stitchedImageObject = stitch_images_sims(lowDTImageObject, highDTImageObject, sparsityPercent,
+                                                 availableDwellTimes)
         plt.figure()
         plt.title("Normal stitching, dwell-times: {}".format([lowDTImageObject.dwellTime, highDTImageObject.dwellTime]))
         plt.imshow(stitchedImageObject.extractedImage, cmap='grey')

@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from sparse_image_gen import extract_sparse_features
-from sparse_image_gen import SparseImage
+from sparse_image_gen import extract_sparse_features_sem
+from sparse_image_gen import SparseImageSEM
 from initialize_database import SEMImage
 from stitch_images import stitch_images
 
@@ -29,7 +29,7 @@ def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes
         raise ValueError("illegal dwell-time")
 
     ourImage = lowDTimageObject.extractedImage
-    sparseFeatures = extract_sparse_features(ourImage, sparsityPercent, availableDwellTimes)
+    sparseFeatures = extract_sparse_features_sem(ourImage, sparsityPercent, availableDwellTimes)
 
     if scanType == "ascending":
         yImpPixelCoords = sparseFeatures[0, :].astype(int)
@@ -99,16 +99,16 @@ def plot_dwell_times_histogram(dwellTimesFeature, bins: int):
     plt.show()
 
 
-def display_mask(sparseImageObject: SparseImage, originalImageObject: SEMImage):
-    if not isinstance(sparseImageObject, SparseImage):
+def display_mask(sparseImageObject: SparseImageSEM, originalImageObject: SEMImage):
+    if not isinstance(sparseImageObject, SparseImageSEM):
         raise TypeError("Input should be a 'Sparse Image' object")
     if not isinstance(originalImageObject, SEMImage):
         raise TypeError("Input should be a 'SEM Image' object")
 
     imageToSee = np.zeros(originalImageObject.extractedImage.shape)
-    yMaskCoords = sparseImageObject.sparseFeatures[0, :].astype(int)
-    xMaskCoords = sparseImageObject.sparseFeatures[1, :].astype(int)
-    imageToSee[yMaskCoords, xMaskCoords] = sparseImageObject.sparseFeatures[2, :]
+    yMaskCoords = sparseImageObject.sparseFeaturesSEM[0, :].astype(int)
+    xMaskCoords = sparseImageObject.sparseFeaturesSEM[1, :].astype(int)
+    imageToSee[yMaskCoords, xMaskCoords] = sparseImageObject.sparseFeaturesSEM[2, :]
 
     plt.figure()
     plt.title('Original image')

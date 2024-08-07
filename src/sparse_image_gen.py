@@ -2,9 +2,15 @@ import numpy as np
 from skimage import filters
 
 
-class SparseImage:
-    def __init__(self, sparseFeatures, imageSize):
-        self.sparseFeatures = sparseFeatures
+class SparseImageSEM:
+    def __init__(self, sparseFeaturesSEM, imageSize):
+        self.sparseFeaturesSEM = sparseFeaturesSEM
+        self.imageSize = imageSize
+
+
+class SparseImageSIMS:
+    def __init__(self, sparseFeaturesSIMS, imageSize):
+        self.sparseFeaturesSIMS = sparseFeaturesSIMS
         self.imageSize = imageSize
 
 
@@ -45,7 +51,7 @@ def calculate_pixelwise_dtime(pixelInterests, availableDwellTimes):
     return np.asarray([min(availableDwellTimes, key=lambda x: abs(x - dtime)) for dtime in dwellTimes])
 
 
-def extract_sparse_features(extractedImage, sparsityPercent, availableDwellTimes):
+def extract_sparse_features_sem(extractedImage, sparsityPercent, availableDwellTimes):
     relativeGradientsImage = compute_image_of_relative_gradients(extractedImage)
     ySharpIndices, xSharpIndices = detect_sharp_edge_locations(relativeGradientsImage, sparsityPercent)
     pixelInterests = calculate_pixel_interests(relativeGradientsImage, ySharpIndices, xSharpIndices)
@@ -58,12 +64,43 @@ def extract_sparse_features(extractedImage, sparsityPercent, availableDwellTimes
     return np.array([ySharpIndices, xSharpIndices, pixelInterests, estDwellTime])
 
 
-def generate_sparse_image(imageObject, sparsityPercent, availableDwellTimes):
+def extract_sparse_features_sims(spectrometryImages, sparsityPercent, availableDwellTimes):
+    ySharpIndices = []
+    xSharpIndices = []
+    pixelInterests = []
+    estDwellTime = []
+
+    for eachMassImage in spectrometryImages:
+        y, x = detect_sharp_edge_locations(eachMassImage, sparsityPercent)
+        ySharpIndices = np.array(np.append(ySharpIndices, y)).astype(int)
+        xSharpIndices = np.array(np.append(xSharpIndices, x)).astype(int)
+        pixelInterests = np.append(pixelInterests,
+                                   calculate_pixel_interests(eachMassImage, ySharpIndices, xSharpIndices))
+        estDwellTime = np.append(estDwellTime, calculate_pixelwise_dtime(pixelInterests, availableDwellTimes))
+
+    if max(pixelInterests) == 0:
+        raise RuntimeError("Useless Image")
+
+    return np.array([ySharpIndices, xSharpIndices, pixelInterests, estDwellTime])
+
+
+def generate_sparse_image_sem(imageObject, sparsityPercent, availableDwellTimes):
     if sparsityPercent < 0 or sparsityPercent > 100:
         raise ValueError("illegal sparsity percentage")
 
     imageSizeDef = imageObject.imageSize
     ourImage = imageObject.extractedImage
-    sparseFeatures = extract_sparse_features(ourImage, sparsityPercent, availableDwellTimes)
+    sparseFeaturesSEM = extract_sparse_features_sem(ourImage, sparsityPercent, availableDwellTimes)
 
-    return SparseImage(sparseFeatures, imageSizeDef)
+    return SparseImageSEM(sparseFeaturesSEM, imageSizeDef)
+
+
+def generate_sparse_image_sims(imageObject, sparsityPercent, availableDwellTimes):
+    if sparsityPercent < 0 or sparsityPercent > 100:
+        raise ValueError("illegal sparsity percentage")
+
+    imageSizeDef = imageObject.imageSize
+    ourImage = imageObject.extractedImage
+    sparseFeaturesSIMS = extract_sparse_features_sims(ourImage, sparsityPercent, availableDwellTimes)
+
+    return SparseImageSEM(sparseFeaturesSIMS, imageSizeDef)

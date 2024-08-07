@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sparse_image_gen import extract_sparse_features_sem
 from sparse_image_gen import SparseImageSEM, SparseImageSIMS
 from initialize_database import SEMImage, SIMSImage
-from stitch_images import stitch_images
+from stitch_images import stitch_images_sem, stitch_images_sims
 
 
 def group_features_by_dwell_times(sparseFeatures):
@@ -120,7 +120,14 @@ def display_mask(sparseImageObject, originalImageObject):
     plt.show()
 
 
-def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent):
+def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent, availableDwellTimes):
+    if not isinstance(lowDTImageObject, (SEMImage, SIMSImage)):
+        raise TypeError("Input should be a 'Sparse Image' object type, either SEM or SIMS")
+    if not isinstance(highDTImageObject, (SEMImage, SIMSImage)):
+        raise TypeError("Input should be a 'Sparse Image' object type, either SEM or SIMS")
+    if not isinstance(lowDTImageObject, type(highDTImageObject)):
+        raise TypeError("Images should be of same type")
+
     plt.figure()
     plt.imshow(lowDTImageObject.extractedImage, cmap='grey')
     plt.title("Low DT Image")
@@ -131,11 +138,19 @@ def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent)
     plt.title("High DT Image")
     plt.show()
 
-    stitchedImageNormal = stitch_images(lowDTImageObject, highDTImageObject, sparsityPercent)
-    plt.figure()
-    plt.title("Normal stitching, dwell-times: {}".format([lowDTImageObject.dwellTime, highDTImageObject.dwellTime]))
-    plt.imshow(stitchedImageNormal, cmap='grey')
-    plt.show()
+    if isinstance(lowDTImageObject, SEMImage):
+        stitchedImageObject = stitch_images_sem(lowDTImageObject, highDTImageObject, sparsityPercent, availableDwellTimes)
+        plt.figure()
+        plt.title("Normal stitching, dwell-times: {}".format([lowDTImageObject.dwellTime, highDTImageObject.dwellTime]))
+        plt.imshow(stitchedImageObject.extractedImage, cmap='grey')
+        plt.show()
+
+    elif isinstance(lowDTImageObject, SIMSImage):
+        stitchedImageObject = stitch_images_sims(lowDTImageObject, highDTImageObject, sparsityPercent, availableDwellTimes)
+        plt.figure()
+        plt.title("Normal stitching, dwell-times: {}".format([lowDTImageObject.dwellTime, highDTImageObject.dwellTime]))
+        plt.imshow(stitchedImageObject.extractedImage, cmap='grey')
+        plt.show()
 
 
 def calculate_psnr(originalImage, hybridImage):

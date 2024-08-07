@@ -14,11 +14,11 @@ class SEMImage:
 
 
 class SIMSImage:
-    def __init__(self, imageSize, dwellTime, spectrometryImages, totalImage):
+    def __init__(self, imageSize, dwellTime, spectrometryImages, extractedImage):
         self.imageSize = imageSize
         self.dwellTime = dwellTime
         self.spectrometryImages = spectrometryImages
-        self.totalImage = totalImage
+        self.extractedImage = extractedImage
 
 
 def read_sem_images(folderPath):

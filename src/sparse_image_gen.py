@@ -3,14 +3,14 @@ from skimage import filters
 
 
 class SparseImageSEM:
-    def __init__(self, sparseFeaturesSEM, imageSize):
-        self.sparseFeaturesSEM = sparseFeaturesSEM
+    def __init__(self, sparseFeatures, imageSize):
+        self.sparseFeatures = sparseFeatures
         self.imageSize = imageSize
 
 
 class SparseImageSIMS:
-    def __init__(self, sparseFeaturesSIMS, imageSize):
-        self.sparseFeaturesSIMS = sparseFeaturesSIMS
+    def __init__(self, sparseFeatures, imageSize):
+        self.sparseFeatures = sparseFeatures
         self.imageSize = imageSize
 
 
@@ -65,21 +65,14 @@ def extract_sparse_features_sem(extractedImage, sparsityPercent, availableDwellT
 
 
 def extract_sparse_features_sims(spectrometryImages, sparsityPercent, availableDwellTimes):
-    ySharpIndices = []
-    xSharpIndices = []
-    pixelInterests = []
-    estDwellTime = []
+    sumImage = np.zeros(spectrometryImages[0].shape)
 
     for eachMassImage in spectrometryImages:
-        y, x = detect_sharp_edge_locations(eachMassImage, sparsityPercent)
-        ySharpIndices = np.array(np.append(ySharpIndices, y)).astype(int)
-        xSharpIndices = np.array(np.append(xSharpIndices, x)).astype(int)
-        pixelInterests = np.append(pixelInterests,
-                                   calculate_pixel_interests(eachMassImage, ySharpIndices, xSharpIndices))
-        estDwellTime = np.append(estDwellTime, calculate_pixelwise_dtime(pixelInterests, availableDwellTimes))
+        sumImage = sumImage + eachMassImage
 
-    if max(pixelInterests) == 0:
-        raise RuntimeError("Useless Image")
+    ySharpIndices, xSharpIndices = detect_sharp_edge_locations(sumImage, sparsityPercent)
+    pixelInterests = calculate_pixel_interests(sumImage, ySharpIndices, xSharpIndices)
+    estDwellTime = calculate_pixelwise_dtime(pixelInterests, availableDwellTimes)
 
     return np.array([ySharpIndices, xSharpIndices, pixelInterests, estDwellTime])
 
@@ -100,8 +93,7 @@ def generate_sparse_image_sims(imageObject, sparsityPercent, availableDwellTimes
         raise ValueError("illegal sparsity percentage")
 
     imageSizeDef = imageObject.imageSize
-    ourImage = imageObject.extractedImage
-    sparseFeaturesSIMS = extract_sparse_features_sims(ourImage, sparsityPercent, availableDwellTimes)
+    spectrometryImages = imageObject.spectrometryImages
+    sparseFeaturesSIMS = extract_sparse_features_sims(spectrometryImages, sparsityPercent, availableDwellTimes)
 
     return SparseImageSIMS(sparseFeaturesSIMS, imageSizeDef)
-

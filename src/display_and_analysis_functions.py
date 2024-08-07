@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from sparse_image_gen import extract_sparse_features_sem
-from sparse_image_gen import SparseImageSEM
-from initialize_database import SEMImage
+from sparse_image_gen import SparseImageSEM, SparseImageSIMS
+from initialize_database import SEMImage, SIMSImage
 from stitch_images import stitch_images
 
 
@@ -99,23 +99,23 @@ def plot_dwell_times_histogram(dwellTimesFeature, bins: int):
     plt.show()
 
 
-def display_mask(sparseImageObject: SparseImageSEM, originalImageObject: SEMImage):
-    if not isinstance(sparseImageObject, SparseImageSEM):
-        raise TypeError("Input should be a 'Sparse Image' object")
-    if not isinstance(originalImageObject, SEMImage):
-        raise TypeError("Input should be a 'SEM Image' object")
+def display_mask(sparseImageObject, originalImageObject):
+    if not isinstance(sparseImageObject, (SparseImageSEM, SparseImageSIMS)):
+        raise TypeError("Input should be a 'Sparse Image' object type, either SEM or SIMS")
+    if not isinstance(originalImageObject, (SEMImage, SIMSImage)):
+        raise TypeError("Input should be either SEM or SIMS image object type")
 
-    imageToSee = np.zeros(originalImageObject.extractedImage.shape)
-    yMaskCoords = sparseImageObject.sparseFeaturesSEM[0, :].astype(int)
-    xMaskCoords = sparseImageObject.sparseFeaturesSEM[1, :].astype(int)
-    imageToSee[yMaskCoords, xMaskCoords] = sparseImageObject.sparseFeaturesSEM[2, :]
+    imageToSee = np.zeros((sparseImageObject.imageSize, sparseImageObject.imageSize))
+    yMaskCoords = sparseImageObject.sparseFeatures[0, :].astype(int)
+    xMaskCoords = sparseImageObject.sparseFeatures[1, :].astype(int)
+    imageToSee[yMaskCoords, xMaskCoords] = sparseImageObject.sparseFeatures[2, :]
 
     plt.figure()
     plt.title('Original image')
     plt.imshow(originalImageObject.extractedImage, cmap='grey')
     plt.show()
     plt.figure()
-    plt.title('Mask of HIA (negative)')
+    plt.title('Mask of HIA')
     plt.imshow(imageToSee, cmap='binary')
     plt.show()
 

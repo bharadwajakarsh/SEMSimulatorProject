@@ -1,10 +1,16 @@
+import numpy as np
+
 from initialize_database import read_sims_images, read_sem_images
-from display_and_analysis_functions import display_mask, display_stitched_image
+from display_and_analysis_functions import display_mask, display_stitched_image, calculate_psnr
 from sparse_image_gen import generate_sparse_image_sims, generate_sparse_image_sem
-from stitch_images import stitch_images_sims
+from stitch_images import stitch_images_sims, stitch_images_sem
 
 simsPath = 'D:/Akarsh/Adaptive Scanning/Data/24_May_2024/SIMSImages'
 semPath = 'D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024'
+
+sparsityPercents = [5, 10, 15, 20, 25, 35, 40, 45, 50]
+peakSNRSEM = []
+peakSNRSIMS = []
 
 SIMSImageSet = read_sims_images(simsPath)
 SEMImageSet = read_sem_images(semPath)
@@ -18,6 +24,16 @@ exampleSEMSecond = SEMImageSet[8]
 SparseSIMSImage = generate_sparse_image_sims(exampleSIMSFirst, 15, [50, 100, 200, 300])
 SparseSEMImage = generate_sparse_image_sem(exampleSEMFirst, 15, [50, 100, 200, 300])
 
+for sp in sparsityPercents:
+    hybridImageSEM = stitch_images_sem(exampleSEMFirst, exampleSEMSecond, sp, [50, 100, 200, 300])
+    hybridImageSIMS = stitch_images_sims(exampleSIMSFirst, exampleSIMSSecond, sp, [50, 100, 200, 300])
+
+    peakSNRSEM = np.append(peakSNRSEM, calculate_psnr(exampleSEMSecond.extractedImage, hybridImageSEM.extractedImage))
+    peakSNRSIMS = np.append(peakSNRSIMS,
+                            calculate_psnr(exampleSIMSSecond.extractedImage, hybridImageSIMS.extractedImage))
+
+print(f"PSNR SEM : {peakSNRSEM}")
+print(f"PSNR SIMS : {peakSNRSIMS}")
 '''
 
 display_mask(SparseSEMImage, exampleSEMFirst)

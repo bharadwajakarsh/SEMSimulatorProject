@@ -1,6 +1,7 @@
 import numpy as np
 import multiprocessing as mp
 from scipy.spatial import Voronoi, cKDTree
+from pykrige.ok import OrdinaryKriging
 
 
 class RandomSparseImage:
@@ -121,6 +122,24 @@ def nn_interpolation_for_sparse_image(randomSparseImageObject, numberNeighbours)
         interpolatedImage[i, j] = pixelValue
 
     return interpolatedImage
+
+
+def kriging_interpolation(randomSparseImageObject):
+    randomSparseFeatures = randomSparseImageObject.randomSparseFeatures
+    imageSize = randomSparseImageObject.imageSize
+
+    xCoords = np.array(randomSparseFeatures[0]).astype(np.int64)
+    yCoords = np.array(randomSparseFeatures[1]).astype(np.int64)
+    randomPixelIntensities = np.array(randomSparseFeatures[2]).astype(np.float64)
+
+    gridX = np.arange(0, imageSize, dtype=np.float64)
+    gridY = np.arange(0, imageSize, dtype=np.float64)
+
+    OK = OrdinaryKriging(xCoords, yCoords, randomPixelIntensities, variogram_model='linear', verbose=False,
+                         enable_plotting=False)
+    interpolatedValues, ss = OK.execute('grid', gridX, gridY)
+
+    return interpolatedValues
 
 
 '''

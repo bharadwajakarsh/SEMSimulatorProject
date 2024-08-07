@@ -27,14 +27,14 @@ class TestStitchImages(unittest.TestCase):
     def test_zero_mse_psnr(self):
         firstImage = np.ones((5, 5))
         secondImage = np.ones((5, 5))
-        psnrValue = calculate_psnr(firstImage, secondImage)
+        psnrValue = calculate_psnr(originalHDTImage, secondImage)
 
         self.assertAlmostEqual(psnrValue, float('inf'))
 
     def test_nonzero_mse_psnr(self):
         firstImage = np.ones((5, 5))*0.1
         secondImage = np.zeros((5, 5))
-        psnrValue = calculate_psnr(firstImage, secondImage)
+        psnrValue = calculate_psnr(originalHDTImage, secondImage)
 
         self.assertEqual(psnrValue, 20.0)
 

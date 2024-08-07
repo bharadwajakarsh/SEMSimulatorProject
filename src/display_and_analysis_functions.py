@@ -155,10 +155,12 @@ def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent,
         plt.show()
 
 
-def calculate_psnr(originalImage, hybridImage):
-    if np.linalg.norm(originalImage - hybridImage) == 0:
+def calculate_psnr(originalHDTImage, hybridImage):
+    if np.linalg.norm(originalHDTImage - hybridImage) == 0:
         return float('inf')
-    return -20 * np.log10(np.mean((originalImage / np.max(originalImage) - hybridImage / np.max(hybridImage)) ** 2))
+
+    return 20 * np.log10(np.linalg.norm(hybridImage / np.max(hybridImage)) /
+                         np.mean((originalHDTImage / np.max(originalHDTImage) - hybridImage / np.max(hybridImage)) ** 2))
 
 
 """

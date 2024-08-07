@@ -103,4 +103,5 @@ def generate_sparse_image_sims(imageObject, sparsityPercent, availableDwellTimes
     ourImage = imageObject.extractedImage
     sparseFeaturesSIMS = extract_sparse_features_sims(ourImage, sparsityPercent, availableDwellTimes)
 
-    return SparseImageSEM(sparseFeaturesSIMS, imageSizeDef)
+    return SparseImageSIMS(sparseFeaturesSIMS, imageSizeDef)
+

@@ -160,7 +160,7 @@ def calculate_psnr(originalHDTImage, hybridImage):
         return float('inf')
 
     return 20 * np.log10(np.linalg.norm(hybridImage / np.max(hybridImage)) /
-                         np.mean((originalHDTImage / np.max(originalHDTImage) - hybridImage / np.max(hybridImage)) ** 2))
+                         np.sqrt(np.mean((originalHDTImage / np.max(originalHDTImage) - hybridImage / np.max(hybridImage)) ** 2)))
 
 
 """

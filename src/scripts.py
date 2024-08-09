@@ -1,5 +1,5 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
 from initialize_database import read_sims_images, read_sem_images
 from display_and_analysis_functions import display_mask, display_stitched_image, calculate_psnr
 from sparse_image_gen import generate_sparse_image_sims, generate_sparse_image_sem
@@ -8,7 +8,7 @@ from stitch_images import stitch_images_sims, stitch_images_sem
 simsPath = 'D:/Akarsh/Adaptive Scanning/Data/24_May_2024/SIMSImages'
 semPath = 'D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024'
 
-sparsityPercents = [5, 10, 15, 20, 25, 35, 40, 45, 50]
+sparsityPercents = np.arange(5, 95, 5)
 peakSNRSEM = []
 peakSNRSIMS = []
 
@@ -32,8 +32,13 @@ for sp in sparsityPercents:
     peakSNRSIMS = np.append(peakSNRSIMS,
                             calculate_psnr(exampleSIMSSecond.extractedImage, hybridImageSIMS.extractedImage))
 
-print(f"PSNR SEM : {peakSNRSEM}")
-print(f"PSNR SIMS : {peakSNRSIMS}")
+
+plt.figure()
+plt.plot(peakSNRSEM)
+plt.xlabel('sparsity%')
+plt.xlabel('sparsity%')
+plt.plot(peakSNRSIMS)
+plt.show()
 '''
 
 display_mask(SparseSEMImage, exampleSEMFirst)

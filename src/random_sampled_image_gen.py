@@ -94,9 +94,7 @@ def nn_interpolation_for_sparse_image(randomSparseImageObject, numberNeighbours)
     randomSparseFeatures = randomSparseImageObject.randomSparseFeatures
     imageSize = randomSparseImageObject.imageSize
 
-    xCoords = randomSparseFeatures[0]
-    yCoords = randomSparseFeatures[1]
-    randomPixelIntensities = randomSparseFeatures[2]
+    xCoords, yCoords, randomPixelIntensities = randomSparseFeatures
 
     interpolatedImage = np.zeros((imageSize, imageSize))
     points = np.column_stack((xCoords, yCoords))

@@ -34,11 +34,12 @@ for sp in sparsityPercents:
 
 
 plt.figure()
-plt.plot(peakSNRSEM)
+plt.plot(sparsityPercents, peakSNRSEM)
 plt.xlabel('sparsity%')
 plt.xlabel('sparsity%')
-plt.plot(peakSNRSIMS)
+plt.plot(sparsityPercents, peakSNRSIMS)
 plt.show()
+
 '''
 
 display_mask(SparseSEMImage, exampleSEMFirst)

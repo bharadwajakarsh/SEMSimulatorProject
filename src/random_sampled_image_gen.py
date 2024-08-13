@@ -28,21 +28,6 @@ def generate_random_sparse_image_sem(imageObject, sparsityPercent):
     return RandomSparseImage(randomSparseFeatures, imageSize)
 
 
-def generate_random_sparse_image_sims(imageObject, sparsityPercent):
-    imagesToSample = imageObject.spectrometryImages
-    imageSize = imageObject.imageSize
-    randomPixelIndices = generate_random_pixel_locations(imageSize, sparsityPercent)
-    randomPixelIntensities = np.zeros((len(imagesToSample), len(randomPixelIndices)))
-    for i, eachChannelImage in enumerate(imagesToSample):
-        imageOpened = np.ravel(eachChannelImage)
-        randomPixelIntensities[i] = imageOpened[randomPixelIndices]
-
-    randomSparseFeatures = np.array([randomPixelIndices % imageSize, randomPixelIndices // imageSize,
-                                     randomPixelIntensities]).astype(int)
-
-    return RandomSparseImage(randomSparseFeatures, imageSize)
-
-
 def add_corners_to_sample_set(imageToSample):
     xCornerCoords = np.array([0, 0, len(imageToSample) - 1, len(imageToSample) - 1])
     yCornerCoords = np.array([0, len(imageToSample) - 1, 0, len(imageToSample) - 1])

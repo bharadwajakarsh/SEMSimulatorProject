@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 from initialize_database import read_sims_images, read_sem_images
 from display_and_analysis_functions import display_mask, display_stitched_image, calculate_psnr
 from sparse_image_gen import generate_sparse_image_sims, generate_sparse_image_sem
+from random_sampled_image_gen import nn_interpolation_for_sparse_image, generate_random_sparse_image_sem
 from stitch_images import stitch_images_sims, stitch_images_sem
 
-simsPath = 'D:/Akarsh/Adaptive Scanning/Data/24_May_2024/SIMSImages'
-semPath = 'D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024'
+simsPath = 'D:/Akarsh/Adaptive Scanning/Data/SIMS Images/Sample4'
+semPath = 'D:/Akarsh/Adaptive Scanning/Data/SEM Images/SEM_images_29_May_2024'
 
 sparsityPercents = np.arange(5, 95, 5)
 peakSNRSEM = []
@@ -15,7 +16,7 @@ peakSNRSIMS = []
 SIMSImageSet = read_sims_images(simsPath)
 SEMImageSet = read_sem_images(semPath)
 
-exampleSIMSFirst = SIMSImageSet[4]
+exampleSIMSFirst = SIMSImageSet[3]
 exampleSIMSSecond = SIMSImageSet[0]
 
 exampleSEMFirst = SEMImageSet[3]

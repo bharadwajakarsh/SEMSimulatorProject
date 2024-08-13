@@ -84,19 +84,3 @@ def read_sims_images(SIMSFolderPath):
 
     return imageSet
 
-
-"""
-Execution
-import matplotlib.pyplot as plt
-
-path = "C:/Users/akbh02/JupyterNotebooks"
-newImageSet = read_sem_images(path)
-
-for image in newImageSet[:2]:
-    plt.figure()
-    plt.imshow(image.extractedImage, cmap='gray')
-    plt.show()
-    print('Dwell time(us): ', image.dwellTime)
-    print('Image size: ', image.imageSize)
-    
-"""

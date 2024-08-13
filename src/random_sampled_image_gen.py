@@ -138,17 +138,3 @@ def kriging_interpolation(randomSparseImageObject):
     interpolatedValues, ss = OK.execute('grid', gridX, gridY)
 
     return interpolatedValues
-
-
-'''
-Execution
-
-path = "D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024"
-availableSEImages = read_sem_images(path)
-imageOne = availableSEImages[3]
-randomSparseImageTwo = generate_random_sparse_image(imageOne, 50)
-interpolatedImage = nn_interpolation_for_sparse_image(randomSparseImageTwo, 3)
-plt.figure()
-plt.imshow(interpolatedImage, cmap = 'grey')
-plt.show()
-'''

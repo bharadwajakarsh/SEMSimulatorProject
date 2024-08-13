@@ -162,25 +162,3 @@ def calculate_psnr(originalHDTImage, hybridImage):
     return 20 * np.log10(np.linalg.norm(hybridImage / np.max(hybridImage)) /
                          np.sqrt(np.mean((originalHDTImage / np.max(originalHDTImage) - hybridImage / np.max(hybridImage)) ** 2)))
 
-
-"""
-Execution
-from initialize_database import read_sem_images
-from generate_new_images import generate_new_images
-from sparse_image_gen import generate_sparse_image
-
-path = "D:/Akarsh/Adaptive Scanning/Data/SEM_images_29_May_2024"
-availableImages = read_sem_images(path)
-imageSubset = availableImages[9:15]
-newImageSet = generate_new_images(imageSubset, 4, 10)
-imageSubset = sorted(imageSubset + newImageSet, key=lambda eachImage: eachImage.dwellTime)
-firstTestImage = imageSubset[0]
-secondTestImage = imageSubset[-1]
-sparseImageObject = generate_sparse_image(firstTestImage, 15, np.array([10, 30, 40, 50, 100, 200, 300]))
-display_mask(sparseImageObject, firstTestImage)
-display_scan_pattern(firstTestImage, 15, np.array([50, 100, 200, 300]), "descending")
-display_stitched_image(firstTestImage, secondTestImage, 15)
-plot_dwell_times_histogram(sparseImageObject.sparseFeatures[2, :], 100)
-print(compare_stitching_methods(firstTestImage, secondTestImage, 15, 3))
-print(calculate_psnr(firstTestImage.extractedImage, stitch_images(firstTestImage, secondTestImage, 15)))
-"""

@@ -20,7 +20,7 @@ class TestStitchImages(unittest.TestCase):
 
         expectedStitchedImage = np.array(
             [[0, 20, 0, 0, 0], [0, 0, 10, 0, 0], [0, 0, 0, 1, 0], [0, 5, 0, 165, 1], [2, 0, 0, 1, 0]]).astype(float)
-        stitchedImageForTest = stitch_images_sem(exampleLDTImage, exampleHDTImage, 15, availableDwellTimes)
+        stitchedImageForTest = stitch_images_sem(exampleLDTImage, exampleHDTImage, 15)
 
         self.assertEqual(0, np.linalg.norm(expectedStitchedImage - stitchedImageForTest))
 

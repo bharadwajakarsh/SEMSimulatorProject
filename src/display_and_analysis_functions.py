@@ -4,20 +4,8 @@ import matplotlib.pyplot as plt
 from sparse_image_gen import extract_sparse_features_sem
 from sparse_image_gen import SparseImageSEM, SparseImageSIMS
 from initialize_database import SEMImage, SIMSImage
+from src.sparse_image_gen import group_features_by_dwell_times
 from stitch_images import stitch_images_sem, stitch_images_sims
-
-
-def group_features_by_dwell_times(sparseFeatures):
-    columnIndex = 2
-    uniqueDwellTimes = np.unique(sparseFeatures[columnIndex])
-    groupedSparseFeatures = {value: [] for value in uniqueDwellTimes}
-
-    for eachDwellTime in uniqueDwellTimes:
-        mask = sparseFeatures[columnIndex] == eachDwellTime
-        featuresOfGroup = sparseFeatures[:, mask]
-        groupedSparseFeatures[eachDwellTime] = featuresOfGroup
-
-    return groupedSparseFeatures
 
 
 def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType):
@@ -139,16 +127,14 @@ def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent,
     plt.show()
 
     if isinstance(lowDTImageObject, SEMImage):
-        stitchedImageObject = stitch_images_sem(lowDTImageObject, highDTImageObject, sparsityPercent,
-                                                availableDwellTimes)
+        stitchedImageObject = stitch_images_sem(lowDTImageObject, highDTImageObject, sparsityPercent)
         plt.figure()
         plt.title("Normal stitching, dwell-times: {}".format([lowDTImageObject.dwellTime, highDTImageObject.dwellTime]))
         plt.imshow(stitchedImageObject.extractedImage, cmap='grey')
         plt.show()
 
     elif isinstance(lowDTImageObject, SIMSImage):
-        stitchedImageObject = stitch_images_sims(lowDTImageObject, highDTImageObject, sparsityPercent,
-                                                 availableDwellTimes)
+        stitchedImageObject = stitch_images_sims(lowDTImageObject, highDTImageObject, sparsityPercent)
         plt.figure()
         plt.title("Normal stitching, dwell-times: {}".format([lowDTImageObject.dwellTime, highDTImageObject.dwellTime]))
         plt.imshow(stitchedImageObject.extractedImage, cmap='grey')

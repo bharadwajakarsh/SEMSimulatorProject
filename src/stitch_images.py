@@ -2,80 +2,81 @@ import numpy as np
 
 from initialize_database import SEMImage, SIMSImage
 from sparse_image_gen import extract_sparse_features_sem, extract_sparse_features_sims
+from src.sparse_image_gen import group_features_by_dwell_times
 
 
-def stitch_images_sem(lowDTImageObject, highDTImageObject, sparsityPercent, availableDwellTimes):
+def stitch_images_sem(lowDTImageObject, highDTImageObjects, sparsityPercent):
     if not isinstance(lowDTImageObject, SEMImage):
         raise ValueError("Image is not of type SEM Object")
-    if not isinstance(highDTImageObject, SEMImage):
-        raise ValueError("Image is not of type SEM Object")
-    if lowDTImageObject.dwellTime > highDTImageObject.dwellTime:
-        raise ValueError("First image should be of lower dwell-time")
-    if lowDTImageObject.extractedImage.shape != highDTImageObject.extractedImage.shape:
-        raise ValueError("Images must have the same shape")
+    for each in highDTImageObjects:
+        if not isinstance(each, SEMImage):
+            raise ValueError("Image is not of type SEM Object")
+        if lowDTImageObject.extractedImage.shape != each.extractedImage.shape:
+            raise ValueError("Images must have the same shape")
+        if lowDTImageObject.dwellTime > each.dwellTime:
+            raise ValueError("First image should be of lower dwell-time")
 
+    availableDwellTimes = [each.dwellTime for each in highDTImageObjects]
     stitchedImage = lowDTImageObject.extractedImage.copy()
-    highDTImage = highDTImageObject.extractedImage
     imageSize = lowDTImageObject.imageSize
 
     lowDTFeatures = extract_sparse_features_sem(stitchedImage, sparsityPercent, availableDwellTimes)
+    groupedFeatures = group_features_by_dwell_times(lowDTFeatures)
 
-    dwellTimesLowDTImage = lowDTFeatures[3]
-    yEdgeCoordinates = np.array(lowDTFeatures[0]).astype(int)
-    xEdgeCoordinates = np.array(lowDTFeatures[1]).astype(int)
+    for eachUniqueDwellTime in groupedFeatures:
+        highDTImage = next(each.extractedImage for each in highDTImageObjects if each.dwellTime == eachUniqueDwellTime)
+        yEdgeCoordinates = np.array(groupedFeatures[eachUniqueDwellTime][:, 0]).astype(int)
+        xEdgeCoordinates = np.array(groupedFeatures[eachUniqueDwellTime][:, 1]).astype(int)
 
-    numberSamples = len(dwellTimesLowDTImage)
-    totalSamples = lowDTImageObject.imageSize ** 2
+        if np.any(yEdgeCoordinates >= lowDTImageObject.imageSize):
+            raise ValueError("Important pixel coordinates out of bounds")
+        if np.any(xEdgeCoordinates >= lowDTImageObject.imageSize):
+            raise ValueError("Important pixel coordinates out of bounds")
 
-    if np.any(yEdgeCoordinates >= lowDTImageObject.imageSize):
-        raise ValueError("Important pixel coordinates out of bounds")
-    if np.any(xEdgeCoordinates >= lowDTImageObject.imageSize):
-        raise ValueError("Important pixel coordinates out of bounds")
+        stitchedImage[yEdgeCoordinates, xEdgeCoordinates] = highDTImage[yEdgeCoordinates, xEdgeCoordinates]
 
-    stitchedImage[yEdgeCoordinates, xEdgeCoordinates] = highDTImage[yEdgeCoordinates, xEdgeCoordinates]
-    effectiveDwellTime = (numberSamples * np.mean(dwellTimesLowDTImage)
-                          + (totalSamples - numberSamples) * lowDTImageObject.dwellTime) / totalSamples
-
+    effectiveDwellTime = (sparsityPercent / 100) * np.mean(lowDTFeatures[3]) + (
+                1 - sparsityPercent / 100) * lowDTImageObject.dwellTime
     return SEMImage(effectiveDwellTime, imageSize, stitchedImage)
 
 
-def stitch_images_sims(lowDTImageObject, highDTImageObject, sparsityPercent, availableDwellTimes):
+def stitch_images_sims(lowDTImageObject, highDTImageObjects, sparsityPercent):
     if not isinstance(lowDTImageObject, SIMSImage):
         raise ValueError("Image is not of type SEM Object")
-    if not isinstance(highDTImageObject, SIMSImage):
-        raise ValueError("Image is not of type SEM Object")
-    if lowDTImageObject.dwellTime > highDTImageObject.dwellTime:
-        raise ValueError("First image should be of lower dwell-time")
-    if lowDTImageObject.extractedImage.shape != highDTImageObject.extractedImage.shape:
-        raise ValueError("Images must have the same shape")
+    for each in highDTImageObjects:
+        if not isinstance(each, SIMSImage):
+            raise ValueError("Image is not of type SEM Object")
+        if lowDTImageObject.extractedImage.shape != each.extractedImage.shape:
+            raise ValueError("Images must have the same shape")
+        if lowDTImageObject.dwellTime > each.dwellTime:
+            raise ValueError("First image should be of lower dwell-time")
 
-    stitchedImageTotal = lowDTImageObject.extractedImage.copy()
-    highDTImage = highDTImageObject.extractedImage
+    availableDwellTimes = [each.dwellTime for each in highDTImageObjects]
     imageSize = lowDTImageObject.imageSize
 
+    stitchedImageTotal = lowDTImageObject.extractedImage.copy()
     stitchedImageSpectrometry = lowDTImageObject.spectrometryImages.copy()
-    spectrometryImagesHighDT = highDTImageObject.spectrometryImages
 
     lowDTFeatures = extract_sparse_features_sims(stitchedImageSpectrometry, sparsityPercent, availableDwellTimes)
+    groupedFeatures = group_features_by_dwell_times(lowDTFeatures)
 
-    dwellTimesLowDTImage = lowDTFeatures[3]
-    yEdgeCoordinates = np.array(lowDTFeatures[0]).astype(int)
-    xEdgeCoordinates = np.array(lowDTFeatures[1]).astype(int)
+    for eachUniqueDwellTime in groupedFeatures:
+        highDTImage = next(each.extractedImage for each in highDTImageObjects if each.dwellTime == eachUniqueDwellTime)
+        spectrometryImagesHighDT = next(each.spectrometryImages for each in highDTImageObjects if
+                                        each.dwellTime == eachUniqueDwellTime)
+        yEdgeCoordinates = np.array(groupedFeatures[eachUniqueDwellTime][0]).astype(int)
+        xEdgeCoordinates = np.array(groupedFeatures[eachUniqueDwellTime][1]).astype(int)
 
-    numberSamples = len(dwellTimesLowDTImage)
-    totalSamples = lowDTImageObject.imageSize ** 2
+        if np.any(yEdgeCoordinates >= lowDTImageObject.imageSize):
+            raise ValueError("Important pixel coordinates out of bounds")
+        if np.any(xEdgeCoordinates >= lowDTImageObject.imageSize):
+            raise ValueError("Important pixel coordinates out of bounds")
 
-    if np.any(yEdgeCoordinates >= lowDTImageObject.imageSize):
-        raise ValueError("Important pixel coordinates out of bounds")
-    if np.any(xEdgeCoordinates >= lowDTImageObject.imageSize):
-        raise ValueError("Important pixel coordinates out of bounds")
+        stitchedImageTotal[yEdgeCoordinates, xEdgeCoordinates] = highDTImage[yEdgeCoordinates, xEdgeCoordinates]
+        for i in range(len(stitchedImageSpectrometry)):
+            stitchedImageSpectrometry[i][yEdgeCoordinates, xEdgeCoordinates] = spectrometryImagesHighDT[i][yEdgeCoordinates, xEdgeCoordinates]
 
-    stitchedImageTotal[yEdgeCoordinates, xEdgeCoordinates] = highDTImage[yEdgeCoordinates, xEdgeCoordinates]
-
-    for i in range(len(stitchedImageSpectrometry)):
-        stitchedImageSpectrometry[i][yEdgeCoordinates, xEdgeCoordinates] = spectrometryImagesHighDT[i][yEdgeCoordinates, xEdgeCoordinates]
-
-    effectiveDwellTime = (numberSamples * np.mean(dwellTimesLowDTImage)
-                          + (totalSamples - numberSamples) * lowDTImageObject.dwellTime) / totalSamples
+    effectiveDwellTime = (sparsityPercent / 100) * np.mean(lowDTFeatures[3]) + (
+                1 - sparsityPercent / 100) * lowDTImageObject.dwellTime
 
     return SIMSImage(imageSize, effectiveDwellTime, stitchedImageSpectrometry, stitchedImageTotal)

@@ -103,3 +103,16 @@ def generate_sparse_image_sims(imageObject, sparsityPercent, availableDwellTimes
     sparseFeaturesSIMS = extract_sparse_features_sims(spectrometryImages, sparsityPercent, availableDwellTimes)
 
     return SparseImageSIMS(sparseFeaturesSIMS, imageSizeDef)
+
+
+def group_features_by_dwell_times(sparseFeatures):
+    columnIndex = 3
+    uniqueDwellTimes = np.unique(sparseFeatures[columnIndex])
+    groupedSparseFeatures = {value: [] for value in uniqueDwellTimes}
+
+    for eachDwellTime in uniqueDwellTimes:
+        mask = sparseFeatures[columnIndex] == eachDwellTime
+        featuresOfGroup = sparseFeatures[:, mask]
+        groupedSparseFeatures[eachDwellTime] = featuresOfGroup
+
+    return groupedSparseFeatures

@@ -439,7 +439,7 @@ def _get_literal_prefix(pattern, flags):
     prefixappend = prefix.append
     prefix_skip = None
     iscased = _get_iscased(flags)
-    for op, av in pattern.data:
+    for op, av in pattern.rawData:
         if op is LITERAL:
             if iscased and iscased(av):
                 break
@@ -579,7 +579,7 @@ def _code(p, flags):
     _compile_info(code, p, flags)
 
     # compile the pattern
-    _compile(code, p.data, flags)
+    _compile(code, p.rawData, flags)
 
     code.append(SUCCESS)
 

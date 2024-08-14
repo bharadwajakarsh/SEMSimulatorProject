@@ -870,14 +870,14 @@ class FrozenImporter:
                 # The only frozen modules with "origname" set are stdlib modules.
                 (__file__, pkgdir,
                  ) = cls._resolve_filename(state.origname, spec.name, ispkg)
-                assert state.filename == __file__, (state.filename, __file__)
+                assert state.fileName == __file__, (state.fileName, __file__)
                 if pkgdir:
                     assert __path__ == [pkgdir], (__path__, pkgdir)
                 else:
                     assert __path__ == ([] if ispkg else None), __path__
             else:
                 __file__ = None
-                assert state.filename is None, state.filename
+                assert state.fileName is None, state.fileName
                 assert __path__ == ([] if ispkg else None), __path__
             # Check the file attrs.
             if __file__:
@@ -964,7 +964,7 @@ class FrozenImporter:
         """Set __file__, if able."""
         module = _new_module(spec.name)
         try:
-            filename = spec.loader_state.filename
+            filename = spec.loader_state.fileName
         except AttributeError:
             pass
         else:

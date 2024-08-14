@@ -34,12 +34,12 @@ def _showwarnmsg_impl(msg):
 
 def _formatwarnmsg_impl(msg):
     category = msg.category.__name__
-    s =  f"{msg.filename}:{msg.lineno}: {category}: {msg.message}\n"
+    s =  f"{msg.fileName}:{msg.lineno}: {category}: {msg.message}\n"
 
     if msg.line is None:
         try:
             import linecache
-            line = linecache.getline(msg.filename, msg.lineno)
+            line = linecache.getline(msg.fileName, msg.lineno)
         except Exception:
             # When a warning is logged during Python shutdown, linecache
             # and the import machinery don't work anymore
@@ -106,7 +106,7 @@ def _showwarnmsg(msg):
                 raise TypeError("warnings.showwarning() must be set to a "
                                 "function or method")
 
-            sw(msg.message, msg.category, msg.filename, msg.lineno,
+            sw(msg.message, msg.category, msg.fileName, msg.lineno,
                msg.file, msg.line)
             return
     _showwarnmsg_impl(msg)
@@ -124,7 +124,7 @@ def _formatwarnmsg(msg):
         if fw is not _formatwarning_orig:
             # warnings.formatwarning() was replaced
             return fw(msg.message, msg.category,
-                      msg.filename, msg.lineno, msg.line)
+                      msg.fileName, msg.lineno, msg.line)
     return _formatwarnmsg_impl(msg)
 
 def filterwarnings(action, message="", category=Warning, module="", lineno=0,

@@ -108,37 +108,36 @@ def display_mask(sparseImageObject, originalImageObject):
     plt.show()
 
 
-def display_stitched_image(lowDTImageObject, highDTImageObject, sparsityPercent, availableDwellTimes):
+def display_stitched_image(lowDTImageObject, stitchedImageObject):
     if not isinstance(lowDTImageObject, (SEMImage, SIMSImage)):
         raise TypeError("Input should be a 'Sparse Image' object type, either SEM or SIMS")
-    if not isinstance(highDTImageObject, (SEMImage, SIMSImage)):
+    if not isinstance(stitchedImageObject, (SEMImage, SIMSImage)):
         raise TypeError("Input should be a 'Sparse Image' object type, either SEM or SIMS")
-    if not isinstance(lowDTImageObject, type(highDTImageObject)):
+    if not isinstance(lowDTImageObject, type(lowDTImageObject)):
         raise TypeError("Images should be of same type")
 
-    plt.figure()
-    plt.imshow(lowDTImageObject.extractedImage, cmap='grey')
-    plt.title("Low DT Image")
-    plt.show()
-
-    plt.figure()
-    plt.imshow(highDTImageObject.extractedImage, cmap='grey')
-    plt.title("High DT Image")
-    plt.show()
-
     if isinstance(lowDTImageObject, SEMImage):
-        stitchedImageObject = stitch_images_sem(lowDTImageObject, highDTImageObject, sparsityPercent)
+
         plt.figure()
-        plt.title("Normal stitching, dwell-times: {}".format([lowDTImageObject.dwellTime, highDTImageObject.dwellTime]))
+        plt.imshow(lowDTImageObject.extractedImage, cmap='grey')
+        plt.title("Low DT Image")
+        plt.show()
+
+        plt.figure()
+        plt.title(f"Stitched Image, effective dwell-time: {stitchedImageObject.dwellTime}")
         plt.imshow(stitchedImageObject.extractedImage, cmap='grey')
         plt.show()
 
     elif isinstance(lowDTImageObject, SIMSImage):
-        stitchedImageObject = stitch_images_sims(lowDTImageObject, highDTImageObject, sparsityPercent)
-        plt.figure()
-        plt.title("Normal stitching, dwell-times: {}".format([lowDTImageObject.dwellTime, highDTImageObject.dwellTime]))
-        plt.imshow(stitchedImageObject.extractedImage, cmap='grey')
-        plt.show()
+        for i in range(len(stitchedImageObject.spectrometryImages)):
+            plt.figure()
+            plt.imshow(lowDTImageObject.spectrometryImages[i], cmap='grey')
+            plt.title("Low DT Image")
+            plt.show()
+            plt.figure()
+            plt.title(f"Stitched Image, channel: {i+1}")
+            plt.imshow(stitchedImageObject.spectrometryImages[i], cmap='grey')
+            plt.show()
 
 
 def calculate_psnr(originalHDTImage, hybridImage):

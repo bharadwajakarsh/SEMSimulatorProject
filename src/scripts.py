@@ -1,12 +1,46 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from initialize_database import read_sims_images, read_sem_images
-from display_and_analysis_functions import calculate_psnr
-from sparse_image_gen import generate_sparse_image_sims, generate_sparse_image_sem
+from display_and_analysis_functions import calculate_psnr, calculate_ssim
+from sparse_image_gen import generate_sparse_image_sims, generate_sparse_image_sem, extract_sparse_features_sem
 from stitch_images import stitch_images_sims, stitch_images_sem
 from read_raw_file import (read_data, get_image_size, process_data, create_channel_range_count_image,
                            plot_channel_range_count_image, plot_total_count_image)
 
+### Compare with emperical results
+
+semPath = 'D:/Akarsh/Adaptive Scanning/Data/16August_first_Adaptive_Scan_Test/Experiment 3'
+SEMImageSet = read_sem_images(semPath)
+sampleImages = SEMImageSet[0:2]
+testImage = SEMImageSet[2]
+highDTImage = SEMImageSet[3]
+
+stitchedImage = stitch_images_sem(testImage, [sampleImages[0]], 20)
+yCoords, xCoords, dc0, dc1 = extract_sparse_features_sem(testImage.extractedImage, 20, [200])
+yCoords = yCoords.astype(int)
+xCoords = xCoords.astype(int)
+empStitchedImage = np.copy(testImage.extractedImage)
+empStitchedImage[yCoords, xCoords] = highDTImage.extractedImage[yCoords, xCoords]
+
+plt.figure()
+plt.title(f"Low DT Image, {testImage.dwellTime}")
+plt.imshow(testImage.extractedImage, cmap='grey')
+plt.show()
+
+plt.figure()
+plt.title(f"Simulated stitched image, {stitchedImage.dwellTime}")
+plt.imshow(stitchedImage.extractedImage, cmap='grey')
+plt.show()
+
+plt.figure()
+plt.title(f"Empirical stitched image")
+plt.imshow(empStitchedImage, cmap='grey')
+plt.show()
+print(f"SSIM for original image and 200us image {calculate_ssim(testImage.extractedImage, sampleImages[1].extractedImage)}")
+print(f"SSIM for emp. stitched image and 200us image {calculate_ssim(empStitchedImage, sampleImages[1].extractedImage)}")
+print(f"SSIM for sim. stitched image and 200us image {calculate_ssim(stitchedImage.extractedImage, sampleImages[1].extractedImage)}")
+
+'''
 
 ### Adaptive sampling and stitching for SEM and SIMS images
 
@@ -44,6 +78,8 @@ plt.xlabel('sparsity%')
 plt.xlabel('sparsity%')
 plt.plot(sparsityPercents, peakSNRSIMS)
 plt.show()
+
+'''
 
 '''
 ### Read raw file and generating "mass-images"

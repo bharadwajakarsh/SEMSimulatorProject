@@ -1,4 +1,5 @@
 import numpy as np
+from skimage.metrics import structural_similarity as ssim
 import matplotlib.pyplot as plt
 
 from sparse_image_gen import extract_sparse_features_sem
@@ -135,7 +136,7 @@ def display_stitched_image(lowDTImageObject, stitchedImageObject):
             plt.title("Low DT Image")
             plt.show()
             plt.figure()
-            plt.title(f"Stitched Image, channel: {i+1}")
+            plt.title(f"Stitched Image, channel: {i + 1}")
             plt.imshow(stitchedImageObject.spectrometryImages[i], cmap='grey')
             plt.show()
 
@@ -145,5 +146,14 @@ def calculate_psnr(originalHDTImage, hybridImage):
         return float('inf')
 
     return 20 * np.log10(np.linalg.norm(hybridImage / np.max(hybridImage)) /
-                         np.sqrt(np.mean((originalHDTImage / np.max(originalHDTImage) - hybridImage / np.max(hybridImage)) ** 2)))
+                         np.sqrt(np.mean(
+                             (originalHDTImage / np.max(originalHDTImage) - hybridImage / np.max(hybridImage)) ** 2)))
 
+
+def calculate_ssim(stitchedImage, averagedImage):
+    if stitchedImage.shape != averagedImage.shape:
+        raise ValueError("Images must have the same dimensions")
+
+    ssimValue = ssim(stitchedImage, averagedImage, data_range=255.0)
+
+    return ssimValue

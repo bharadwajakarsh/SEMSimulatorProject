@@ -5,20 +5,7 @@ import os
 
 from PIL import Image
 
-
-class SEMImage:
-    def __init__(self, dwellTime, imageSize, extractedImage):
-        self.dwellTime = dwellTime
-        self.imageSize = imageSize
-        self.extractedImage = extractedImage
-
-
-class SIMSImage:
-    def __init__(self, imageSize, dwellTime, spectrometryImages, extractedImage):
-        self.imageSize = imageSize
-        self.dwellTime = dwellTime
-        self.spectrometryImages = spectrometryImages
-        self.extractedImage = extractedImage
+from src.image_classes import SEMImage, SIMSImage
 
 
 def read_sem_images(folderPath):

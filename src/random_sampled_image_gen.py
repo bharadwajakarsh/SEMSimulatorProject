@@ -3,11 +3,7 @@ import multiprocessing as mp
 from scipy.spatial import Voronoi, cKDTree
 from pykrige.ok import OrdinaryKriging
 
-
-class RandomSparseImage:
-    def __init__(self, randomSparseFeatures, imageSize):
-        self.randomSparseFeatures = randomSparseFeatures
-        self.imageSize = imageSize
+from src.image_classes import RandomSparseImage
 
 
 def generate_random_sparse_image_sem(imageObject, sparsityPercent):

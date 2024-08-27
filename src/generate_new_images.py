@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from initialize_database import SEMImage
+from src.image_classes import SEMImage
 
 
 def find_average_image(randomImageSubset):

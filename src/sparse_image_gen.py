@@ -1,17 +1,7 @@
 import numpy as np
 from skimage import filters
 
-
-class SparseImageSEM:
-    def __init__(self, sparseFeatures, imageSize):
-        self.sparseFeatures = sparseFeatures
-        self.imageSize = imageSize
-
-
-class SparseImageSIMS:
-    def __init__(self, sparseFeatures, imageSize):
-        self.sparseFeatures = sparseFeatures
-        self.imageSize = imageSize
+from src.image_classes import SparseImageSIMS, SparseImageSEM
 
 
 def compute_sample_size(imageShape, sparsityPercent):

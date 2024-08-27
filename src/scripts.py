@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from initialize_database import read_sims_images, read_sem_images
+from read_images import read_sims_images, read_sem_images
 from display_and_analysis_functions import calculate_psnr, calculate_ssim
 from sparse_image_gen import generate_sparse_image_sims, generate_sparse_image_sem, extract_sparse_features_sem
 from stitch_images import stitch_images_sims, stitch_images_sem

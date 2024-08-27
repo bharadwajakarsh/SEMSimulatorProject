@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 
 from src.generate_new_images import generate_new_images, find_average_image
-from src.initialize_database import SEMImage
+from src.image_classes import SEMImage
 
 
 class TestNewImageGeneration(unittest.TestCase):

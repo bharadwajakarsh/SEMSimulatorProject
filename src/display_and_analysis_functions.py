@@ -144,9 +144,8 @@ def calculate_psnr(originalHDTImage, hybridImage):
     if np.linalg.norm(originalHDTImage - hybridImage) == 0:
         return float('inf')
 
-    return 20 * np.log10(np.linalg.norm(hybridImage / np.max(hybridImage)) /
-                         np.sqrt(np.mean(
-                             (originalHDTImage / np.max(originalHDTImage) - hybridImage / np.max(hybridImage)) ** 2)))
+    return 20 * np.log10(np.max(hybridImage) /
+                         np.sqrt(np.mean((originalHDTImage - hybridImage) ** 2)))
 
 
 def calculate_ssim(stitchedImage, averagedImage):

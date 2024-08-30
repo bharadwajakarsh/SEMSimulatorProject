@@ -3,11 +3,14 @@ import matplotlib.pyplot as plt
 from read_images import read_sims_images, read_sem_images
 from display_and_analysis_functions import calculate_psnr, calculate_ssim
 from sparse_image_gen import generate_sparse_image_sims, generate_sparse_image_sem, extract_sparse_features_sem
+from src.random_sampled_image_gen import generate_random_sparse_image_sem, interpolate_random_sampled_images
 from stitch_images import stitch_images_sims, stitch_images_sem
 from read_raw_file import (read_data, get_image_size, process_data, create_channel_range_count_image,
                            plot_channel_range_count_image, plot_total_count_image)
 
-### Compare with emperical results
+'''
+
+### Compare with empirical results
 
 semPath = 'D:/Akarsh/Adaptive Scanning/Data/16August_first_Adaptive_Scan_Test/Experiment 3'
 SEMImageSet = read_sem_images(semPath)
@@ -41,7 +44,7 @@ print(f"SSIM for emp. stitched image and 200us image {calculate_ssim(empStitched
 print(f"SSIM for sim. stitched image and 200us image {calculate_ssim(stitchedImage.extractedImage, sampleImages[1].extractedImage)}")
 
 '''
-
+'''
 ### Adaptive sampling and stitching for SEM and SIMS images
 
 simsPath = 'D:/Akarsh/Adaptive Scanning/Data/SIMS Images/Sample4'
@@ -101,3 +104,36 @@ print(f"Channel {channel} Count Image:\n", channel_count_image)
 plot_channel_range_count_image(rangeCountImage, channelLowerBound, channelUpperBound)
 
 '''
+### Test interpolation algorithms for random sampling
+
+SEMImageSet = read_sem_images('D:/Akarsh/Adaptive Scanning/Data/16August_first_Adaptive_Scan_Test/Experiment 1')
+interpolationMethods = ['linear', 'nearest', 'cubic']
+PSNRs = [[] for each in interpolationMethods]
+SSIMs = [[] for every in interpolationMethods]
+testImage = SEMImageSet[2]
+
+sparsityValues = np.arange(5, 90, 5)
+for i, eachMethod in enumerate(interpolationMethods):
+    for s in sparsityValues:
+        randomSparseImage = generate_random_sparse_image_sem(testImage, s)
+        interpolatedImage = interpolate_random_sampled_images(randomSparseImage, eachMethod)
+        PSNRs[i].append(calculate_psnr(testImage.extractedImage, interpolatedImage))
+        SSIMs[i].append(calculate_ssim(interpolatedImage, testImage.extractedImage))
+
+plt.figure(figsize=(8, 6))
+plt.plot(sparsityValues, PSNRs[0])
+plt.plot(sparsityValues, PSNRs[1])
+plt.plot(sparsityValues, PSNRs[2])
+plt.legend(['cubic', 'nearest', 'natural'], loc='lower right')
+plt.xlabel("Sparsity(%)")
+plt.ylabel("PSNR(dB)")
+plt.show()
+
+plt.figure(figsize=(8, 6))
+plt.plot(sparsityValues, SSIMs[0])
+plt.plot(sparsityValues, SSIMs[1])
+plt.plot(sparsityValues, SSIMs[2])
+plt.xlabel("Sparsity(%)")
+plt.legend(['cubic', 'nearest', 'natural'], loc='lower right')
+plt.ylabel("SSIM")
+plt.show()

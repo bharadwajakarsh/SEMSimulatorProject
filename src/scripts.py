@@ -5,7 +5,7 @@ from display_and_analysis_functions import calculate_psnr, calculate_ssim
 from sparse_image_gen import generate_sparse_image_sims, generate_sparse_image_sem, extract_sparse_features_sem
 from src.random_sampled_image_gen import generate_random_sparse_image_sem, interpolate_random_sampled_images
 from stitch_images import stitch_images_sims, stitch_images_sem
-from read_raw_file import (read_data, get_image_size, process_data, create_channel_range_count_image,
+from read_raw_file import (read_raw_data, get_image_size, process_data, create_channel_range_count_image,
                            plot_channel_range_count_image, plot_total_count_image)
 
 '''

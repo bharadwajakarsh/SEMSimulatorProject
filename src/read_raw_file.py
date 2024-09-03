@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def read_data(fileName):
+def read_raw_data(fileName):
     rawData = []
     with open(fileName, 'r') as file:
         for line in file:
@@ -37,7 +37,7 @@ def create_channel_count_image(rawData, imageSize, channelNumber):
 
 
 def process_data(fileName, channelNumber):
-    rawData = read_data(fileName)
+    rawData = read_raw_data(fileName)
     imageSize = get_image_size(rawData)
 
     # images

@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from sparse_image_gen import extract_sparse_features_sem
-from src.image_classes import SEMImage, SIMSImage, SparseImageSIMS, SparseImageSEM
-from src.sparse_image_gen import group_features_by_dwell_times
+from image_classes import SEMImage, SIMSImage, SparseImageSIMS, SparseImageSEM
+from sparse_image_gen import group_features_by_dwell_times
 
 
 def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType):

@@ -1,11 +1,9 @@
 import numpy as np
-from skimage.metrics import structural_similarity as ssim
 import matplotlib.pyplot as plt
 
 from sparse_image_gen import extract_sparse_features_sem
 from src.image_classes import SEMImage, SIMSImage, SparseImageSIMS, SparseImageSEM
 from src.sparse_image_gen import group_features_by_dwell_times
-from stitch_images import stitch_images_sem, stitch_images_sims
 
 
 def generate_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes, scanType):
@@ -74,19 +72,6 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes,
         raise ValueError("Invalid scan type")
 
 
-def plot_dwell_times_histogram(dwellTimesFeature, bins: int):
-    if len(dwellTimesFeature) == 0:
-        raise ValueError("Empty dwell-times feature vector")
-    if not isinstance(bins, int):
-        bins = int(bins)
-
-    plt.figure()
-    plt.hist(dwellTimesFeature, bins)
-    plt.xlabel("dwell time(us)")
-    plt.ylabel("# pixels")
-    plt.show()
-
-
 def display_mask(sparseImageObject, originalImageObject):
     if not isinstance(sparseImageObject, (SparseImageSEM, SparseImageSIMS)):
         raise TypeError("Input should be a 'Sparse Image' object type, either SEM or SIMS")
@@ -140,18 +125,3 @@ def display_stitched_image(lowDTImageObject, stitchedImageObject):
             plt.show()
 
 
-def calculate_psnr(originalHDTImage, hybridImage):
-    if np.linalg.norm(originalHDTImage - hybridImage) == 0:
-        return float('inf')
-
-    return 20 * np.log10(np.max(hybridImage) /
-                         np.sqrt(np.mean((originalHDTImage - hybridImage) ** 2)))
-
-
-def calculate_ssim(stitchedImage, averagedImage):
-    if stitchedImage.shape != averagedImage.shape:
-        raise ValueError("Images must have the same dimensions")
-
-    ssimValue = ssim(stitchedImage, averagedImage, data_range=255.0)
-
-    return ssimValue

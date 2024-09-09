@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from src.display_and_analysis_functions import calculate_psnr
+from src.analysis import calculate_psnr
 from src.image_classes import SEMImage
 from src.stitch_images import stitch_images_sem
 

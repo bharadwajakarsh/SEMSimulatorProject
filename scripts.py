@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from src.read_images import read_sims_images, read_sem_images
 from src.analysis import calculate_psnr, calculate_ssim
-from src.sparse_image_gen import generate_sparse_image_sims, generate_sparse_image_sem, extract_sparse_features_sem
-from src.random_sampled_image_gen import generate_random_sparse_image_sem, interpolate_random_sampled_images
+from src.sparse_image_gen import generate_sparse_image, extract_sparse_features_sem, extract_sparse_features_sims
+from src.interpolate_images import interpolate_random_sampled_images
 from src.stitch_images import stitch_images_sims, stitch_images_sem
 from src.read_raw_file import (read_raw_data, get_image_size, process_data, create_channel_range_count_image,
                            plot_channel_range_count_image, plot_total_count_image)
@@ -115,7 +115,7 @@ testImage = SEMImageSet[2]
 sparsityValues = np.arange(5, 90, 5)
 for i, eachMethod in enumerate(interpolationMethods):
     for s in sparsityValues:
-        randomSparseImage = generate_random_sparse_image_sem(testImage, s)
+        randomSparseImage = generate_sparse_image(testImage, s, 'random')
         interpolatedImage = interpolate_random_sampled_images(randomSparseImage, eachMethod)
         PSNRs[i].append(calculate_psnr(testImage.extractedImage, interpolatedImage))
         SSIMs[i].append(calculate_ssim(interpolatedImage, testImage.extractedImage))

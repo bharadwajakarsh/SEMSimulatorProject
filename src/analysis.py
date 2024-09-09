@@ -1,16 +1,5 @@
 import numpy as np
-
-def plot_dwell_times_histogram(dwellTimesFeature, bins: int):
-    if len(dwellTimesFeature) == 0:
-        raise ValueError("Empty dwell-times feature vector")
-    if not isinstance(bins, int):
-        bins = int(bins)
-
-    plt.figure()
-    plt.hist(dwellTimesFeature, bins)
-    plt.xlabel("dwell time(us)")
-    plt.ylabel("# pixels")
-    plt.show()
+from skimage.metrics import structural_similarity as ssim
 
 
 def calculate_psnr(originalHDTImage, hybridImage):

@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from sparse_image_gen import extract_sparse_features_sem
-from image_classes import SEMImage, SIMSImage, SparseImageSIMS, SparseImageSEM
+from image_classes import SEMImage, SIMSImage, SparseImage
 from sparse_image_gen import group_features_by_dwell_times
 
 
@@ -73,7 +73,7 @@ def display_scan_pattern(lowDTimageObject, sparsityPercent, availableDwellTimes,
 
 
 def display_mask(sparseImageObject, originalImageObject):
-    if not isinstance(sparseImageObject, (SparseImageSEM, SparseImageSIMS)):
+    if not isinstance(sparseImageObject, SparseImage):
         raise TypeError("Input should be a 'Sparse Image' object type, either SEM or SIMS")
     if not isinstance(originalImageObject, (SEMImage, SIMSImage)):
         raise TypeError("Input should be either SEM or SIMS image object type")
@@ -98,7 +98,7 @@ def display_stitched_image(lowDTImageObject, stitchedImageObject):
         raise TypeError("Input should be a 'Sparse Image' object type, either SEM or SIMS")
     if not isinstance(stitchedImageObject, (SEMImage, SIMSImage)):
         raise TypeError("Input should be a 'Sparse Image' object type, either SEM or SIMS")
-    if not isinstance(lowDTImageObject, type(lowDTImageObject)):
+    if not isinstance(lowDTImageObject, type(stitchedImageObject)):
         raise TypeError("Images should be of same type")
 
     if isinstance(lowDTImageObject, SEMImage):
@@ -125,3 +125,14 @@ def display_stitched_image(lowDTImageObject, stitchedImageObject):
             plt.show()
 
 
+def plot_dwell_times_histogram(dwellTimesFeature, bins: int):
+    if len(dwellTimesFeature) == 0:
+        raise ValueError("Empty dwell-times feature vector")
+    if not isinstance(bins, int):
+        bins = int(bins)
+
+    plt.figure()
+    plt.hist(dwellTimesFeature, bins)
+    plt.xlabel("dwell time(us)")
+    plt.ylabel("# pixels")
+    plt.show()

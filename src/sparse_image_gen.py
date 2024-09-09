@@ -1,7 +1,7 @@
 import numpy as np
 from skimage import filters
 
-from src.image_classes import SparseImageSIMS, SparseImageSEM
+from image_classes import SparseImage, SEMImage, SIMSImage
 
 
 def compute_sample_size(imageShape, sparsityPercent):
@@ -18,18 +18,18 @@ def compute_image_of_relative_gradients(image):
     return relativeGradientsImage
 
 
-def detect_sharp_edge_locations(relativeGradientsImage, sparsityPercent):
-    threshold = np.percentile(relativeGradientsImage, 100 - sparsityPercent)
-    MaskOfSharpPixels = relativeGradientsImage >= threshold
+def detect_sharp_edge_locations(image, sparsityPercent):
+    threshold = np.percentile(image, 100 - sparsityPercent)
+    MaskOfSharpPixels = image >= threshold
     return np.where(MaskOfSharpPixels)
 
 
-def calculate_pixel_interests(relativeGradientsImage, ySharpIndices, xSharpIndices):
-    if any(y < 0 or y >= relativeGradientsImage.shape[0] for y in ySharpIndices):
+def calculate_pixel_interests(image, ySharpIndices, xSharpIndices):
+    if any(y < 0 or y >= image.shape[0] for y in ySharpIndices):
         raise ValueError("Index value out of range")
-    if any(x < 0 or x >= relativeGradientsImage.shape[1] for x in xSharpIndices):
+    if any(x < 0 or x >= image.shape[1] for x in xSharpIndices):
         raise ValueError("Index value out of range")
-    return relativeGradientsImage[ySharpIndices, xSharpIndices]
+    return image[ySharpIndices, xSharpIndices]
 
 
 def calculate_pixelwise_dtime(pixelInterests, availableDwellTimes):
@@ -73,26 +73,40 @@ def extract_sparse_features_sims(spectrometryImages, sparsityPercent, availableD
     return np.array([ySharpIndices, xSharpIndices, pixelInterests, estDwellTime])
 
 
-def generate_sparse_image_sem(imageObject, sparsityPercent, availableDwellTimes):
+def generate_sparse_image(imageObject, sparsityPercent, sparseImageType, availableDwellTimes=None):
+    imageSize = imageObject.imageSize
+    extractedImage = imageObject.extractedImage
+
     if sparsityPercent < 0 or sparsityPercent > 100:
         raise ValueError("illegal sparsity percentage")
 
-    imageSizeDef = imageObject.imageSize
-    ourImage = imageObject.extractedImage
-    sparseFeaturesSEM = extract_sparse_features_sem(ourImage, sparsityPercent, availableDwellTimes)
+    if sparseImageType == 'hia':
+        if isinstance(imageObject, SEMImage):
+            sparseFeaturesSEM = extract_sparse_features_sem(extractedImage, sparsityPercent, availableDwellTimes)
+            return SparseImage(sparseImageType, imageSize, sparseFeaturesSEM)
 
-    return SparseImageSEM(sparseFeaturesSEM, imageSizeDef)
+        elif isinstance(imageObject, SIMSImage):
+            spectrometryImages = imageObject.spectrometryImages
+            sparseFeaturesSIMS = extract_sparse_features_sims(spectrometryImages, sparsityPercent, availableDwellTimes)
+            return SparseImage(sparseImageType, imageSize, sparseFeaturesSIMS)
+        else:
+            raise ValueError("Unknown image type")
 
+    elif sparseImageType == 'random':
 
-def generate_sparse_image_sims(imageObject, sparsityPercent, availableDwellTimes):
-    if sparsityPercent < 0 or sparsityPercent > 100:
-        raise ValueError("illegal sparsity percentage")
+        randomPixelIndices = generate_random_pixel_locations(imageSize, sparsityPercent)
+        imageOpened = np.ravel(extractedImage)
+        randomPixelIntensities = imageOpened[randomPixelIndices]
+        randomSparseFeatures = np.array([randomPixelIndices % imageSize, randomPixelIndices // imageSize,
+                                         randomPixelIntensities]).astype(int)
+        cornersToAdd = add_corners_to_sample_set(extractedImage)
+        for i in range(len(cornersToAdd)):
+            if not np.any(np.all(randomSparseFeatures == cornersToAdd[:, i][:, None], axis=0)):
+                randomSparseFeatures = np.concatenate((randomSparseFeatures, cornersToAdd[:, i][:, None]), axis=1)
 
-    imageSizeDef = imageObject.imageSize
-    spectrometryImages = imageObject.spectrometryImages
-    sparseFeaturesSIMS = extract_sparse_features_sims(spectrometryImages, sparsityPercent, availableDwellTimes)
-
-    return SparseImageSIMS(sparseFeaturesSIMS, imageSizeDef)
+        return SparseImage(sparseImageType, imageSize, randomSparseFeatures)
+    else:
+        raise ValueError("Unknown type")
 
 
 def group_features_by_dwell_times(sparseFeatures):
@@ -106,3 +120,17 @@ def group_features_by_dwell_times(sparseFeatures):
         groupedSparseFeatures[eachDwellTime] = featuresOfGroup
 
     return groupedSparseFeatures
+
+
+def add_corners_to_sample_set(imageToSample):
+    xCornerCoords = np.array([0, 0, len(imageToSample) - 1, len(imageToSample) - 1])
+    yCornerCoords = np.array([0, len(imageToSample) - 1, 0, len(imageToSample) - 1])
+    cornerPixelIntensities = np.array(
+        [imageToSample[xCornerCoords[i], yCornerCoords[i]] for i in range(len(xCornerCoords))])
+    return np.array([xCornerCoords, yCornerCoords, cornerPixelIntensities])
+
+
+def generate_random_pixel_locations(imageSize, sparsityPercent):
+    sampleSize = int(imageSize ** 2 * sparsityPercent / 100)
+    randomPixelIndices = np.random.choice(imageSize ** 2, size=sampleSize, replace=False)
+    return randomPixelIndices

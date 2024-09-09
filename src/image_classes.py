@@ -13,19 +13,8 @@ class SIMSImage:
         self.extractedImage = extractedImage
 
 
-class RandomSparseImage:
-    def __init__(self, randomSparseFeatures, imageSize):
-        self.randomSparseFeatures = randomSparseFeatures
-        self.imageSize = imageSize
-
-
-class SparseImageSIMS:
-    def __init__(self, sparseFeatures, imageSize):
-        self.sparseFeatures = sparseFeatures
-        self.imageSize = imageSize
-
-
-class SparseImageSEM:
-    def __init__(self, sparseFeatures, imageSize):
+class SparseImage:
+    def __init__(self, imageType, sparseFeatures, imageSize):
+        self.imageType = imageType
         self.sparseFeatures = sparseFeatures
         self.imageSize = imageSize

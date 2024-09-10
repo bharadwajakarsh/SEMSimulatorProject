@@ -1,8 +1,8 @@
 import numpy as np
 
-from src.image_classes import SEMImage, SIMSImage
+from image_classes import SEMImage, SIMSImage
 from sparse_image_gen import extract_sparse_features_sem, extract_sparse_features_sims
-from src.sparse_image_gen import group_features_by_dwell_times
+from sparse_image_gen import group_features_by_dwell_times
 
 
 def stitch_images_sem(lowDTImageObject, highDTImageObjects, sparsityPercent):

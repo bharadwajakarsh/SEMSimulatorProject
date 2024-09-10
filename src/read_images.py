@@ -5,7 +5,7 @@ import os
 
 from PIL import Image
 
-from src.image_classes import SEMImage, SIMSImage
+from image_classes import SEMImage, SIMSImage
 
 
 def read_sem_images(folderPath):
